@@ -1,9 +1,15 @@
 import app from './app.js';
+import connectDB from './config/index.config.js';
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4001;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-}).on('error', (err) => {
-  console.error('Error starting server:', err);
-});
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on PORT: ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log(`Server failed to start. Error: ${err}`);
+    process.exit(1);
+  });

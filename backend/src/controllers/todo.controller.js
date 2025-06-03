@@ -12,4 +12,20 @@ export const createTodo = asyncHandler(async (req, res, next) => {
       'All fields (title, description, due date, and priority) are required.'
     );
   }
+
+  const todo = await Todo.create({
+    title,
+    description,
+    dueDate,
+    priority,
+  });
+
+  if (!todo) {
+    throw new ApiError(500, 'Failed to create a todo!');
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(201, 'Successfully created an Todo', todo));
 });
+

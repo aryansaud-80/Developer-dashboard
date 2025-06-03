@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -13,6 +14,6 @@ app.use(cookieParser());
 
 import TodoRouter from './routes/todo.routes.js';
 
-TodoRouter.use("/api/todo");
+app.use('/api/todo', TodoRouter);
 
 export default app;
