@@ -13,7 +13,9 @@ app.use(cookieParser());
 //Import Routers
 
 import TodoRouter from './routes/todo.routes.js';
+import UserRouter from './routes/user.routes.js';
 
-app.use('/api', TodoRouter);
+app.use('/api/todos', TodoRouter);
+app.use('/api/users', UserRouter);
 
 export default app;
