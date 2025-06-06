@@ -8,6 +8,12 @@ import ApiResponse from '../utils/ApiResponse.js';
 export const createTodo = asyncHandler(async (req, res, next) => {
   const { title, description, dueDate, priority } = req.body;
 
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized to create a todo!');
+  }
+
   if ([title, description, dueDate, priority].some((field) => field === '')) {
     throw new ApiError(
       400,
@@ -20,6 +26,7 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     description,
     dueDate,
     priority,
+    userId
   });
 
   if (!todo) {
