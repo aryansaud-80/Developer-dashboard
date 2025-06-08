@@ -11,8 +11,12 @@ import { auth } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.route('/').post(auth, createTodo).get(getAllTodo);
-router.route('/:id').get(getTodo).patch(updateTodo).delete(deleteTodo);
-router.route('/:id/status').patch(updateStatus);
+router.route('/').post(auth, createTodo).get(auth, getAllTodo);
+router
+  .route('/:id')
+  .get(auth, getTodo)
+  .patch(auth, updateTodo)
+  .delete(auth, deleteTodo);
+router.route('/:id/status').patch(auth, updateStatus);
 
 export default router;

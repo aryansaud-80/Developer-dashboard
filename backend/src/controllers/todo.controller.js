@@ -3,7 +3,6 @@ import asyncHandler from '../utils/asyncHandler.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 
-//TODO need to implement authorization later
 
 export const createTodo = asyncHandler(async (req, res, next) => {
   const { title, description, dueDate, priority } = req.body;
@@ -14,7 +13,7 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Unauthorized to create a todo!');
   }
 
-  if ([title, description, dueDate, priority].some((field) => field === '')) {
+  if ([title, description, dueDate, priority].some((field) => field?.trim() === '')) {
     throw new ApiError(
       400,
       'All fields (title, description, due date, and priority) are required.'
@@ -26,7 +25,7 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     description,
     dueDate,
     priority,
-    userId
+    userId,
   });
 
   if (!todo) {
@@ -38,6 +37,11 @@ export const createTodo = asyncHandler(async (req, res, next) => {
 
 export const updateTodo = asyncHandler(async (req, res, next) => {
   const todoId = req.params.id;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized!');
+  }
 
   if (!todoId) {
     throw new ApiError(400, 'Todo id is required!');
@@ -47,7 +51,11 @@ export const updateTodo = asyncHandler(async (req, res, next) => {
   const { title, description, dueDate, priority } = req.body;
 
   if (!todo) {
-    throw new ApiError(404, 'The todo with given id is not found!');
+    throw new ApiError(404, 'Failed to find todo!');
+  }
+
+  if (todo.userId.toString() !== userId) {
+    throw new ApiError(403, 'You are not authorized to modify this todo.');
   }
 
   const updatedTodo = await Todo.findByIdAndUpdate(
@@ -68,31 +76,63 @@ export const updateTodo = asyncHandler(async (req, res, next) => {
   }
 
   res
-    .status(201)
-    .json(new ApiResponse(201, 'Todo updated successfully', updatedTodo));
+    .status(200)
+    .json(new ApiResponse(200, 'Todo updated successfully', updatedTodo));
 });
 
 export const deleteTodo = asyncHandler(async (req, res, next) => {
   const todoId = req.params.id;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized!');
+  }
 
   if (!todoId) {
     throw new ApiError(400, 'todoId is required to delete todo!');
   }
 
-  try {
-    await Todo.findByIdAndDelete(todoId);
-  } catch (error) {
-    throw new ApiError(500, 'Failed to delete todo!');
+  const todo = await Todo.findById(todoId);
+
+  if (!todo) {
+    throw new ApiError(500, 'Failed to find todo!');
   }
 
-  res.status(200).json(new ApiResponse(200, 'Todo deleted successfully'));
+  if (todo.userId.toString() !== userId) {
+    throw new ApiError(403, 'You are not authorized to modify this todo.');
+  }
+
+  const deletedTodo = await Todo.findByIdAndDelete(todoId);
+
+  if (!deletedTodo) {
+    throw new ApiError(404, 'Failed to delete todo!');
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Todo deleted successfully', deletedTodo));
 });
 
 export const updateStatus = asyncHandler(async (req, res, next) => {
   const todoId = req.params.id;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized!');
+  }
 
   if (!todoId) {
     throw new ApiError(400, 'todoId is required!');
+  }
+
+  const todo = await Todo.findById(todoId);
+
+  if (!todo) {
+    throw new ApiError(400, 'Failed to find todo!');
+  }
+
+  if (todo.userId.toString() !== userId) {
+    throw new ApiError(403, 'You are not authorized to modify this todo.');
   }
 
   const { completed } = req.body;
@@ -128,6 +168,11 @@ export const updateStatus = asyncHandler(async (req, res, next) => {
 
 export const getTodo = asyncHandler(async (req, res, next) => {
   const todoId = req.params.id;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized!');
+  }
 
   if (!todoId) {
     throw new ApiError(400, 'Requires todoId!');
@@ -139,13 +184,22 @@ export const getTodo = asyncHandler(async (req, res, next) => {
     throw new ApiError(404, 'Failed to find todo!');
   }
 
+  if (todo.userId.toString() !== userId) {
+    throw new ApiError(401, 'You are not authorized to access the todo');
+  }
+
   res.status(200).json(new ApiResponse(200, 'Successfully fetched todo', todo));
 });
 
 export const getAllTodo = asyncHandler(async (req, res, next) => {
   const { completed } = req.query;
+  const userId = req.user?.id;
 
-  const filter = {};
+  if (!userId) {
+    throw new ApiError(401, 'Unauthorized!');
+  }
+
+  const filter = { userId };
   if (completed !== undefined) {
     filter.completed = completed === 'true';
   }
