@@ -1,6 +1,10 @@
+import Todo from './components/todo/Todo';
+
 const App = () => {
   return (
-    <div className="text-3xl text-red-400">App</div>
-  )
-}
-export default App
+    <div>
+      <Todo />
+    </div>
+  );
+};
+export default App;

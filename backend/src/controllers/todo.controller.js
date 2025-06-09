@@ -5,7 +5,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 
 
 export const createTodo = asyncHandler(async (req, res, next) => {
-  const { title, description, dueDate, priority } = req.body;
+  const { title, description, dueDate } = req.body;
 
   const userId = req.user?.id;
 
@@ -13,7 +13,7 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Unauthorized to create a todo!');
   }
 
-  if ([title, description, dueDate, priority].some((field) => field?.trim() === '')) {
+  if ([title, description, dueDate].some((field) => field?.trim() === '')) {
     throw new ApiError(
       400,
       'All fields (title, description, due date, and priority) are required.'
@@ -24,7 +24,6 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     title,
     description,
     dueDate,
-    priority,
     userId,
   });
 
@@ -48,7 +47,7 @@ export const updateTodo = asyncHandler(async (req, res, next) => {
   }
 
   const todo = await Todo.findById(todoId);
-  const { title, description, dueDate, priority } = req.body;
+  const { title, description, dueDate } = req.body;
 
   if (!todo) {
     throw new ApiError(404, 'Failed to find todo!');
@@ -64,7 +63,6 @@ export const updateTodo = asyncHandler(async (req, res, next) => {
       title: title || todo.title,
       description: description || todo.description,
       dueDate: dueDate || todo.dueDate,
-      priority: priority || todo.priority,
     },
     {
       new: true,

@@ -20,11 +20,6 @@ const todoSchema = new Schema(
       type: Date,
       default: null,
     },
-    priority: {
-      type: String,
-      enum: ['low', 'medium', 'high'],
-      default: 'medium',
-    },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
