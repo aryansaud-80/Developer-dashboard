@@ -1,5 +1,6 @@
 import BarIcon from '../../assets/icons/BarIcon';
 import FunnelIcon from '../../assets/icons/FunnelIcon';
+import TodoCard from './TodoCard';
 
 const Todo = () => {
   return (
@@ -39,8 +40,10 @@ const Todo = () => {
         </div>
       </div>
 
-      <div className=''>
-
+      <div className='grid grid-cols-2 gap-6'>
+        {[1, 2, 3, 4, 5, 6].map((todo) => {
+          return <TodoCard key={todo} />;
+        })}
       </div>
     </section>
   );

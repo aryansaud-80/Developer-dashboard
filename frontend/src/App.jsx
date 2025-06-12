@@ -2,7 +2,8 @@ import Todo from './components/todo/Todo';
 
 const App = () => {
   return (
-    <div>
+    <div className='flex gap-3'>
+      <div className='min-w-64'></div>
       <Todo />
     </div>
   );
