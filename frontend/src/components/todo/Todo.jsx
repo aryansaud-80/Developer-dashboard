@@ -4,7 +4,7 @@ import TodoCard from './TodoCard';
 
 const Todo = () => {
   return (
-    <section className='flex flex-col gap-10 ml-10 mt-10'>
+    <section className='flex flex-col gap-10  mt-10'>
       <div className='flex flex-col gap-5 max-w-xl '>
         <div className='flex gap-10 items-center justify-center self-start'>
           <div className='min-w-10 min-h-10 rounded-md bg-slate-400 flex items-center justify-center'>
