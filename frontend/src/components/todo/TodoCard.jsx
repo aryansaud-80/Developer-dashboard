@@ -1,5 +1,12 @@
-const TodoCard = () => {
-  const html = `<div class="todo-description">Buy milk, eggs, bread, and fruits from the supermarket.</div>`;
+import DOMPurify from 'dompurify';
+import { useNavigate } from 'react-router-dom';
+import truncate from 'truncate-html';
+
+const TodoCard = ({ todo }) => {
+  const cleanHtml = DOMPurify.sanitize(todo.description);
+  const maxLength = cleanHtml.length > 100 ? 40 : cleanHtml.length;
+  const truncatedHtml = truncate(cleanHtml, maxLength, { ellipsis: '...' });
+  const navigateToDetails = useNavigate();
 
   return (
     <section
@@ -8,23 +15,24 @@ const TodoCard = () => {
         hover:shadow-md transition-shadow duration-200'
     >
       <div className='flex flex-col gap-2'>
-        <h3 className='text-2xl font-semibold text-slate-900'>Title</h3>
+        <h3 className='text-2xl font-semibold text-slate-900'>{todo.title}</h3>
 
-        <p
-          className='text-gray-600 leading-relaxed'
-          dangerouslySetInnerHTML={{ __html: html }}
+        <div
+          className='text-gray-600 leading-relaxed desc'
+          dangerouslySetInnerHTML={{ __html: truncatedHtml }}
         />
 
-        <span className='text-sm text-gray-400'>Due: 2025-06-20</span>
+        <span className='text-sm text-gray-400'>Due: {todo.dueDate}</span>
 
         <span className='inline-block bg-slate-200 text-slate-600 text-xs font-medium px-3 py-1 rounded-md w-max'>
-          Pending
+          {todo.completed ? 'Completed' : 'Pending'}
         </span>
       </div>
 
       <button
         className='mt-auto bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-md py-3 text-lg
           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-1'
+        onClick={() => navigateToDetails(`/todo-list/${todo.id}`)}
       >
         View Details
       </button>
