@@ -22,9 +22,16 @@ const TodoCard = ({ todo }) => {
           dangerouslySetInnerHTML={{ __html: truncatedHtml }}
         />
 
-        <span className='text-sm text-gray-400'>Due: {todo.dueDate}</span>
+        <span className='text-sm text-gray-600'>
+          Due Date:{' '}
+          {new Date(todo.dueDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </span>
 
-        <span className='inline-block bg-slate-200 text-slate-600 text-xs font-medium px-3 py-1 rounded-md w-max'>
+        <span className={`inline-block text-slate-600 text-xs font-medium px-3 py-1 rounded-md w-max ${todo.completed ? 'bg-green-300' : 'bg-amber-300'}`}>
           {todo.completed ? 'Completed' : 'Pending'}
         </span>
       </div>
@@ -32,7 +39,7 @@ const TodoCard = ({ todo }) => {
       <button
         className='mt-auto bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-md py-3 text-lg
           transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-1'
-        onClick={() => navigateToDetails(`/todo-list/${todo.id}`)}
+        onClick={() => navigateToDetails(`/todo-list/${todo._id}`)}
       >
         View Details
       </button>

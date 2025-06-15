@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const TodoListPage = () => {
-  const { todos, setTodos, BACKEND_URL } = useContext(AppContext);
+  const { todos, setTodos, BACKEND_URL, accessToken } = useContext(AppContext);
   const [page, setPage] = useState(1);
   const todosPerPage = 6;
   const navigate = useNavigate();
@@ -20,8 +20,6 @@ const TodoListPage = () => {
     const fetchTodos = async () => {
       try {
         axios.defaults.withCredentials = true;
-
-        const accessToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDMwYjAwY2YxNjBiYmMyNTc5OWRhMCIsInVzZXJuYW1lIjoiR2FuZXNoUGF0aGFrMDEyMyIsImVtYWlsIjoiZ2FuZXNocGF0aGFrMjA2M0BnbWFpbC5jb20iLCJpYXQiOjE3NDk4ODk4MzEsImV4cCI6MTc1MDA2MjYzMX0.cDKPM5K36qhitXXBGfyeOX1sxWaWi8AFb46nhWKwoXQ`;
 
         const { data } = await axios.get(`${BACKEND_URL}/todos`, {
           headers: {
@@ -85,7 +83,7 @@ const TodoListPage = () => {
 
           <button
             onClick={() => navigate('/add-todo')}
-            className='w-full sm:w-auto bg-indigo-600 text-white font-medium py-2 px-6 rounded-md hover:bg-indigo-700 transition duration-200'
+            className='w-full sm:w-auto bg-slate-600 text-white font-medium py-2 px-6 rounded-md hover:bg-slate-700 transition duration-200'
           >
             Add Todo
           </button>
@@ -98,25 +96,27 @@ const TodoListPage = () => {
         ))}
       </div>
 
-      <div className='flex justify-center gap-4 mt-6'>
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className='px-4 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-md disabled:opacity-50 hover:bg-indigo-200 transition'
-        >
-          Prev
-        </button>
-        <span className='flex items-center text-gray-700 font-medium'>
-          Page {page} of {totalPages}
-        </span>
-        <button
-          disabled={page === totalPages}
-          onClick={() => setPage(page + 1)}
-          className='px-4 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-md disabled:opacity-50 hover:bg-indigo-200 transition'
-        >
-          Next
-        </button>
-      </div>
+      {page > 1 && (
+        <div className='flex justify-center gap-4 mt-6'>
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className='px-4 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-md disabled:opacity-50 hover:bg-indigo-200 transition'
+          >
+            Prev
+          </button>
+          <span className='flex items-center text-gray-700 font-medium'>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+            className='px-4 py-2 bg-indigo-100 text-indigo-700 font-medium rounded-md disabled:opacity-50 hover:bg-indigo-200 transition'
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 };

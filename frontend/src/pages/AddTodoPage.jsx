@@ -38,7 +38,7 @@ const AddTodoPage = () => {
         },
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDMwYjAwY2YxNjBiYmMyNTc5OWRhMCIsInVzZXJuYW1lIjoiR2FuZXNoUGF0aGFrMDEyMyIsImVtYWlsIjoiZ2FuZXNocGF0aGFrMjA2M0BnbWFpbC5jb20iLCJpYXQiOjE3NDk4ODk1NjMsImV4cCI6MTc0OTg5MDQ2M30.-XXDNLlfgssAbKTtfT1Voa-tplTyORE9O7DQX0Ud3Xw`,
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDMwYjAwY2YxNjBiYmMyNTc5OWRhMCIsInVzZXJuYW1lIjoiR2FuZXNoUGF0aGFrMDEyMyIsImVtYWlsIjoiZ2FuZXNocGF0aGFrMjA2M0BnbWFpbC5jb20iLCJpYXQiOjE3NDk5MTQ3NjYsImV4cCI6MTc1MDA4NzU2Nn0.lVBNN3EZQXAzmlnpxnRpj7p2VY3_JCJ41qxHiXAWhfY`,
           },
         }
       );
