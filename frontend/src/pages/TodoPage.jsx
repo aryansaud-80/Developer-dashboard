@@ -13,11 +13,9 @@ const TodoPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [popup, setPopup] = useState(false);
 
-
   useEffect(() => {
     const fetchTodo = async () => {
       try {
-
         axios.defaults.withCredentials = true;
 
         const { data } = await axios.get(`${BACKEND_URL}/todos/${id}`, {
@@ -35,7 +33,7 @@ const TodoPage = () => {
       } catch (error) {
         setError('Failed to load To-Do. Please try again later.');
         toast.error('Failed to load To-Do. Please try again later.');
-      } 
+      }
     };
 
     if (accessToken) {
@@ -70,7 +68,9 @@ const TodoPage = () => {
   };
 
   const handleEdit = () => {
-    navigate(`/todos/edit/${id}`);
+    navigate(`/todos/edit/${id}`, {
+      state: { todo },
+    });
   };
 
   const handleDelete = async () => {
@@ -104,15 +104,12 @@ const TodoPage = () => {
   };
 
   const handlePopupConfirm = () => {
-    setToDelete(true);
     handleDelete();
   };
 
   const handlePopupCancel = () => {
     setPopup(false);
-    setToDelete(false);
   };
-
 
   const sanitizedDescription = DOMPurify.sanitize(todo.description);
 

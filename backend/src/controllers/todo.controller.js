@@ -5,6 +5,7 @@ import ApiResponse from '../utils/ApiResponse.js';
 
 export const createTodo = asyncHandler(async (req, res, next) => {
   const { title, description, dueDate } = req.body;
+  console.log(dueDate);
 
   const userId = req.user?.id;
 
@@ -19,10 +20,14 @@ export const createTodo = asyncHandler(async (req, res, next) => {
     );
   }
 
+  if (new Date() > new Date(dueDate)) {
+    throw new ApiError(400, "Due date cannot be less than today's date");
+  }
+
   const todo = await Todo.create({
     title,
     description,
-    dueDate,
+    dueDate: new Date(dueDate),
     userId,
   });
 
@@ -56,12 +61,20 @@ export const updateTodo = asyncHandler(async (req, res, next) => {
     throw new ApiError(403, 'You are not authorized to modify this todo.');
   }
 
+  if ([title, description, dueDate].some((field) => field.trim() === '')) {
+    throw new ApiError(400, 'All field are required');
+  }
+
+  if (Date.now() > new Date(dueDate)) {
+    throw new ApiError(400, "Due date cannot be less than today's date");
+  }
+
   const updatedTodo = await Todo.findByIdAndUpdate(
     todoId,
     {
-      title: title || todo.title,
-      description: description || todo.description,
-      dueDate: dueDate || todo.dueDate,
+      title: title,
+      description: description,
+      dueDate: dueDate,
     },
     {
       new: true,

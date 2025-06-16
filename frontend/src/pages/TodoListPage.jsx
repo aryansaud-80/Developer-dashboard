@@ -90,9 +90,9 @@ const TodoListPage = () => {
         </div>
       </div>
 
-      <div className='grid place-items-center grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className='grid place-items-center grid-cols-1 sm:grid-cols-2  gap-6 lg:grid-cols-3'>
         {currentTodos.map((todo) => (
-          <TodoCard key={todo} todo={todo} />
+          <TodoCard key={todo._id} todo={todo} />
         ))}
       </div>
 

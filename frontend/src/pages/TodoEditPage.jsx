@@ -6,13 +6,14 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 
-const AddTodoPage = () => {
+const TodoEditPage = () => {
+  const location = useLocation();
+  const todo = location.state?.todo;
   const { BACKEND_URL, accessToken } = useContext(AppContext);
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-
-  console.log(date);
+  const [title, setTitle] = useState(todo.title);
+  const [date, setDate] = useState(todo.dueDate.slice(0, 10));
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -20,19 +21,24 @@ const AddTodoPage = () => {
     if (!quillRef.current && editorRef.current) {
       quillRef.current = new Quill(editorRef.current, {
         theme: 'snow',
-        placeholder: 'Write your task description...',
+        placeholder: 'Enter description...',
       });
-    }
-  }, []);
 
-  const handleAddTodo = async (e) => {
+      // Load actual content
+      if (todo.description) {
+        quillRef.current.clipboard.dangerouslyPasteHTML(todo.description);
+      }
+    }
+  }, [todo.description]);
+
+  const handleEditTodo = async (e) => {
     try {
       e.preventDefault();
       const description = quillRef.current?.root.innerHTML;
       axios.defaults.withCredentials = true;
 
-      const { data } = await axios.post(
-        `${BACKEND_URL}/todos`,
+      const { data } = await axios.patch(
+        `${BACKEND_URL}/todos/${todo._id}`,
         {
           title,
           description,
@@ -52,16 +58,16 @@ const AddTodoPage = () => {
         quillRef.current.setText('');
       }
     } catch (error) {
-      toast.error('Failed to add To-Do. Please try again.');
+      toast.error('Failed to update To-Do. Please try again.');
     }
   };
 
   return (
     <section className='max-w-4xl mx-auto p-6 sm:p-10 ml-0 sm:ml-64'>
-      <h1 className='text-3xl font-bold mb-8 ml-10'>Add New To-Do</h1>
+      <h1 className='text-3xl font-bold mb-8 ml-10'>Update To-Do</h1>
 
       <form
-        onSubmit={handleAddTodo}
+        onSubmit={handleEditTodo}
         className='flex flex-col gap-8 bg-white p-8 rounded-md shadow-lg'
         noValidate
       >
@@ -114,11 +120,11 @@ const AddTodoPage = () => {
           type='submit'
           className='self-start bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-semibold transition flex gap-3'
         >
-          <PlusIcon /> Add Todo
+          <PlusIcon /> Update Todo
         </button>
       </form>
     </section>
   );
 };
 
-export default AddTodoPage;
+export default TodoEditPage;
