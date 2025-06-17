@@ -32,7 +32,7 @@ const PomodoroSetting = () => {
 
           <style>{`body { overflow: hidden; }`}</style>
 
-          <div className='fixed inset-0 flex justify-center items-center z-30 pointer-events-auto'>
+          <div className=' inset-0  flex justify-center items-center z-30 pointer-events-auto'>
             <TimeSetting onClose={() => setIsSettingOpen(false)} />
           </div>
         </>

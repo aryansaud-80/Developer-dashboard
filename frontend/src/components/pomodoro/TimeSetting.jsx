@@ -27,7 +27,7 @@ const TimeSetting = ({ onClose }) => {
 
       <div className='w-full h-0.5 bg-gray-300 mt-2' />
 
-      <div className='flex justify-between mt-6'>
+      <div className='flex justify-between mt-6 max-sm:flex-col max-sm:gap-3'>
         <div className='flex flex-col'>
           <label htmlFor='workTime' className='text-sm font-semibold mb-1'>Work</label>
           <input
