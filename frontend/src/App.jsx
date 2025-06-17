@@ -6,6 +6,7 @@ import AddTodoPage from './pages/AddTodoPage';
 import GithubPage from './pages/GithubPage';
 import TodoPage from './pages/TodoPage';
 import TodoEditPage from './pages/TodoEditPage';
+import PomodoroPage from './pages/PomodoroPage';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
           <Route path='todo-list/:id' element={<TodoPage />} />
           <Route path='github-activity' element={<GithubPage />} />
           <Route path='todos/edit/:id' element={<TodoEditPage />} />
+          <Route path='pomodoro-timer' element={<PomodoroPage />} />
         </Route>
       </Routes>
     </>

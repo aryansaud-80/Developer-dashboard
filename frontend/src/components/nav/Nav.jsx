@@ -11,7 +11,7 @@ const Nav = () => {
     <>
       <button
         onClick={() => setOpen(!open)}
-        className='fixed top-4 left-4 z-50 p-2 rounded-md bg-slate-100 shadow-md sm:hidden'
+        className='fixed top-4 left-4 z-50 p-2 rounded-md bg-slate-100 shadow-md md:hidden'
         aria-label='Toggle navigation menu'
         aria-expanded={open}
         aria-controls='sidebar'
@@ -22,14 +22,14 @@ const Nav = () => {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className='fixed inset-0 bg-black bg-opacity-30 z-40 sm:hidden'
+          className='fixed inset-0 bg-black bg-opacity-30 z-40 md:hidden'
           aria-hidden='true'
         />
       )}
 
       <aside
         id='sidebar'
-        className={`fixed top-0 left-0 h-screen bg-slate-100 shadow-sm border-r border-gray-200 w-64 p-6 pt-10 transform transition-transform duration-300 ease-in-out z-50 sm:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col
+        className={`fixed top-0 left-0 h-screen bg-slate-100 shadow-sm border-r border-gray-200 w-64 p-6 pt-10 transform transition-transform duration-300 ease-in-out z-50 md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} flex flex-col
         `}
       >
         <div className='flex flex-col gap-10 h-full'>
