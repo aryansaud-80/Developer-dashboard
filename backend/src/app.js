@@ -19,8 +19,10 @@ app.use(cookieParser());
 
 import TodoRouter from './routes/todo.routes.js';
 import UserRouter from './routes/user.routes.js';
+import TodoSnippetRouter from './routes/snippet.routes.js';
 
 app.use('/api/todos', TodoRouter);
 app.use('/api/users', UserRouter);
+app.use('/api/snippet', TodoSnippetRouter);
 
 export default app;
