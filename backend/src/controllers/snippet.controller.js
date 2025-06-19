@@ -11,17 +11,17 @@ export const createSnippet = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Unauthorized to create snippet!');
   }
 
-  const { title, code, tags } = req.body;
+  const { title, code, tags, description, language, difficulty } = req.body;
 
-  if (!title || !code || !Array.isArray(tags)) {
+  if (!title || !code || !language || !Array.isArray(tags)) {
     throw new ApiError(
       400,
       'Title and code are required, tags must be an array.'
     );
   }
 
-  if (!title.trim() || !code.trim()) {
-    throw new ApiError(400, 'Title and code cannot be empty.');
+  if (!title.trim() || !code.trim() || !language.trim()) {
+    throw new ApiError(400, 'Title, code  and language cannot be empty.');
   }
 
   const cleanTags = tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean);
@@ -29,6 +29,9 @@ export const createSnippet = asyncHandler(async (req, res, next) => {
   const snippet = await Snippet.create({
     title: title.trim(),
     code: code.trim(),
+    description,
+    language,
+    difficulty: difficulty?.toLowerCase(),
     tags: cleanTags,
     userId,
   });
@@ -57,7 +60,7 @@ export const updateSnippet = asyncHandler(async (req, res) => {
     throw new ApiError(403, 'You are not authorized to update this snippet');
   }
 
-  const { title, code, tags } = req.body;
+  const { title, code, tags, language, description, difficulty } = req.body;
 
   const updates = {};
 
@@ -67,6 +70,18 @@ export const updateSnippet = asyncHandler(async (req, res) => {
 
   if (typeof code === 'string' && code.trim()) {
     updates.code = code.trim();
+  }
+
+  if (typeof language === 'string' && language.trim()) {
+    updates.language = language.trim();
+  }
+
+  if (typeof description === 'string' && description.trim()) {
+    updates.description = description.trim();
+  }
+
+  if (typeof difficulty === 'string' && difficulty.trim()) {
+    updates.difficulty = difficulty.trim();
   }
 
   if (Array.isArray(tags)) {
@@ -94,20 +109,20 @@ export const deleteSnippet = asyncHandler(async (req, res, next) => {
   if (!userId) {
     throw new ApiError(
       401,
-      'You are unauthorized to update! Please login first'
+      'You are unauthorized to delete! Please login first'
     );
   }
 
   const snippetId = req.params?.id;
 
   if (!mongoose.isValidObjectId(snippetId)) {
-    throw new ApiError('400', 'Valid snippet id is required');
+    throw new ApiError(400, 'Valid snippet id is required');
   }
 
   const snippet = await Snippet.findById(snippetId);
 
   if (!snippet) {
-    throw new ApiError('500', 'Snippet not found!');
+    throw new ApiError(500, 'Snippet not found!');
   }
 
   if (snippet.userId.toString().trim() !== userId.trim()) {
@@ -137,7 +152,9 @@ export const getAllSnippet = asyncHandler(async (req, res, next) => {
   const snippet = await Snippet.find({ userId });
 
   if (!snippet || snippet.length === 0) {
-    throw new ApiError('500', 'Snippet not found!');
+    return res
+      .status(200)
+      .json(new ApiResponse(200, 'No snippets found for this user', []));
   }
 
   res
