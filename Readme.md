@@ -90,8 +90,16 @@
    ```
    env
 
-   MONGODB_URI=your_mongo_uri
-   JWT_SECRET=your_jwt_secret
+   PORT = 4001
+
+   MONGODB_URI = your mongodb atlas connection
+
+   ACCESS_TOKEN_SECRET = 
+   REFRESH_TOKEN_SECRET = 
+   ACCESS_TOKEN_EXPIRY = 15m
+   REFRESH_TOKEN_EXPIRY = 7d
+
+   CORS_ORIGIN = http://localhost:5173
    ```
 
 ---
