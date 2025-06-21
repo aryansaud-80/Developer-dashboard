@@ -33,7 +33,7 @@ const AppContextProvider = (props) => {
   const [todos, setTodos] = useState([]);
   const [todo, setTodo] = useState([]);
   const [accessToken, setAccessToken] = useState(
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NDMwYjAwY2YxNjBiYmMyNTc5OWRhMCIsInVzZXJuYW1lIjoiR2FuZXNoUGF0aGFrMDEyMyIsImVtYWlsIjoiZ2FuZXNocGF0aGFrMjA2M0BnbWFpbC5jb20iLCJpYXQiOjE3NTAyNTkzMjksImV4cCI6MTc1MDQzMjEyOX0.gQNYnSSm9301RJ1UQPb4SJIV7kDi_3QYzOVAODsxu2s'
+    import.meta.env.VITE_ACCESS_TOKEN
   );
 
   const value = {
