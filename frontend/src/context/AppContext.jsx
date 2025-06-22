@@ -8,6 +8,8 @@ const AppContextProvider = (props) => {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [pomodoroCount, setPomodoroCount] = useState(0);
+  const [snippets, setSnippets] = useState([]);
+  const [filterSnippet, setFilterSnippet] = useState([]);
   const [workTime, setWorkTime] = useState(() => {
     return Number(localStorage.getItem('workTime')) || 25;
   });
@@ -53,6 +55,10 @@ const AppContextProvider = (props) => {
     setShortBreak,
     longBreak,
     setLongBreak,
+    filterSnippet,
+    setFilterSnippet,
+    snippets,
+    setSnippets,
   };
 
   return (

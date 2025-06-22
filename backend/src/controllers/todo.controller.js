@@ -5,7 +5,6 @@ import ApiResponse from '../utils/ApiResponse.js';
 
 export const createTodo = asyncHandler(async (req, res, next) => {
   const { title, description, dueDate } = req.body;
-  console.log(dueDate);
 
   const userId = req.user?.id;
 
@@ -215,6 +214,10 @@ export const getAllTodo = asyncHandler(async (req, res, next) => {
   }
 
   const todos = await Todo.find(filter);
+
+  if (todos.length === 0 || !todos) {
+    throw new ApiError(500, 'Todo not found');
+  }
 
   res
     .status(200)

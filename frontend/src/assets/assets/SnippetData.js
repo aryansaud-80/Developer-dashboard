@@ -24,7 +24,7 @@ fetchData()
   .then(data => console.log('Success:', data))
   .catch(error => console.log('Failed:', error));`,
     language: 'javascript',
-    tags: ['async', 'error-handling', 'fetch'],
+    tags: [ ],
     createdAt: '2024-01-15',
 
     difficulty: 'intermediate',

@@ -12,7 +12,6 @@ const AddTodoPage = () => {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
 
-  console.log(date);
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 

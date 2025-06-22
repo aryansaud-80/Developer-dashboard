@@ -8,6 +8,7 @@ import TodoPage from './pages/TodoPage';
 import TodoEditPage from './pages/TodoEditPage';
 import PomodoroPage from './pages/PomodoroPage';
 import SnippetPage from './pages/SnippetPage';
+import AddSnippetPage from './pages/AddSnippetPage';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
           <Route path='todos/edit/:id' element={<TodoEditPage />} />
           <Route path='pomodoro-timer' element={<PomodoroPage />} />
           <Route path='code-snippets' element={<SnippetPage />} />
+          <Route path='add-snippet' element={<AddSnippetPage />} />
         </Route>
       </Routes>
     </>

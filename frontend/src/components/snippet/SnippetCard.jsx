@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import CodeContainer from './CodeContainer';
 import { PenLineIcon, TagIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 const SnippetCard = ({ snippet }) => {
   const [isCopied, setIsCopied] = useState(false);
@@ -23,21 +24,23 @@ const SnippetCard = ({ snippet }) => {
     }
   };
 
+  const sanitizedDescription = DOMPurify.sanitize(snippet.description);
+
   const handleEdit = () => {
-    navigate(`snippet/edit/${snippet.id}`, { state: { snippet } });
+    navigate(`snippet/edit/${snippet._id}`, { state: { snippet } });
   };
 
   return (
     <div className='border border-gray-500 p-4 rounded-lg w-full max-w-full sm:max-w-xl md:max-w-3xl mx-auto flex flex-col gap-6'>
-      {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0'>
         <div>
           <h1 className='text-lg sm:text-xl font-bold break-words'>
             {snippet.title}
           </h1>
-          <p className='text-sm sm:text-md text-gray-400 font-light mt-1 break-words'>
-            {snippet.description}
-          </p>
+          <div
+            className='desc'
+            dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+          />
         </div>
 
         <button
@@ -56,7 +59,6 @@ const SnippetCard = ({ snippet }) => {
         </button>
       </div>
 
-      {/* Labels */}
       <div className='flex flex-wrap gap-3 text-sm'>
         <span
           className={`${getLanguageColor(
@@ -74,12 +76,10 @@ const SnippetCard = ({ snippet }) => {
         </span>
       </div>
 
-      {/* Code Container */}
       <div className='relative w-full overflow-x-auto'>
         <CodeContainer language={snippet.language} code={snippet.code} />
       </div>
 
-      {/* Tags */}
       <div className='flex flex-wrap gap-2'>
         {snippet.tags.map((tag, index) => (
           <div
@@ -92,7 +92,6 @@ const SnippetCard = ({ snippet }) => {
         ))}
       </div>
 
-      {/* Edit Button */}
       <button
         className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
         onClick={handleEdit}
