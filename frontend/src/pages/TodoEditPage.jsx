@@ -1,48 +1,95 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import PlusIcon from '../assets/icons/PlusIcon';
 import axios from 'axios';
-import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ArrowBigLeft } from 'lucide-react';
 
 const TodoEditPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const location = useLocation();
-  const todo = location.state?.todo;
+  const todoFromState = location.state?.todo;
   const { BACKEND_URL, accessToken } = useContext(AppContext);
-  const [title, setTitle] = useState(todo.title);
-  const [date, setDate] = useState(todo.dueDate.slice(0, 10));
+
+  const [loading, setLoading] = useState(!todoFromState);
+  const [title, setTitle] = useState(todoFromState?.title || '');
+  const [date, setDate] = useState(todoFromState?.dueDate?.slice(0, 10) || '');
+
+  const [description, setDescription] = useState(
+    todoFromState?.description || ''
+  );
+
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
   useEffect(() => {
     if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, {
+      const quill = new Quill(editorRef.current, {
         theme: 'snow',
         placeholder: 'Enter description...',
       });
 
-      // Load actual content
-      if (todo.description) {
-        quillRef.current.clipboard.dangerouslyPasteHTML(todo.description);
-      }
+      quill.clipboard.dangerouslyPasteHTML(description);
+
+      quill.on('text-change', () => {
+        setDescription(quill.root.innerHTML);
+      });
+
+      quillRef.current = quill;
+    } else if (quillRef.current) {
+      quillRef.current.root.innerHTML = description;
     }
-  }, [todo.description]);
+  }, [description]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        axios.defaults.withCredentials = true;
+
+        const { data } = await axios.get(`${BACKEND_URL}/todos/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (data.success) {
+          const todo = data.data;
+          setTitle(todo.title || '');
+          setDate(todo.dueDate?.slice(0, 10) || '');
+          setDescription(todo.description || '');
+        } else {
+          toast.error('Failed to fetch todo');
+          navigate('/todos');
+        }
+      } catch (error) {
+        toast.error('Something went wrong while fetching todo');
+        navigate('/todos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!todoFromState) {
+      fetchData();
+    }
+  }, [id]);
 
   const handleEditTodo = async (e) => {
+    e.preventDefault();
     try {
-      e.preventDefault();
-      const description = quillRef.current?.root.innerHTML;
       axios.defaults.withCredentials = true;
 
-      const { data } = await axios.patch(
-        `${BACKEND_URL}/todos/${todo._id}`,
+      const { data } = await axios.put(
+        `${BACKEND_URL}/todos/${id}`,
         {
           title,
-          description,
           dueDate: date,
+          description,
         },
         {
           headers: {
@@ -52,19 +99,28 @@ const TodoEditPage = () => {
       );
 
       if (data.success) {
-        toast.success('To-Do added successfully!');
-        setTitle('');
-        setDate('');
-        quillRef.current.setText('');
+        toast.success('To-Do updated successfully!');
+        navigate('/todos');
       }
     } catch (error) {
       toast.error('Failed to update To-Do. Please try again.');
     }
   };
 
+  if (loading) return <div className='text-center py-10'>Loading...</div>;
+
   return (
-    <section className='max-w-4xl mx-auto p-6 sm:p-10 ml-0 sm:ml-64'>
-      <h1 className='text-3xl font-bold mb-8 ml-10'>Update To-Do</h1>
+    <section className='max-w-4xl mx-auto p-6 sm:p-10 ml-0 md:ml-64'>
+      <div className='flex justify-between items-center'>
+        <h1 className='text-3xl font-bold mb-8 ml-10'>Update To-Do</h1>
+        <button
+          className='flex bg-blue-300 px-3 py-2 rounded-md'
+          onClick={() => navigate('/todo-list')}
+        >
+          <ArrowBigLeft />
+          Back
+        </button>
+      </div>
 
       <form
         onSubmit={handleEditTodo}
@@ -72,10 +128,7 @@ const TodoEditPage = () => {
         noValidate
       >
         <div className='flex flex-col gap-1'>
-          <label
-            htmlFor='title'
-            className='font-semibold text-gray-700 flex items-center'
-          >
+          <label htmlFor='title' className='font-semibold text-gray-700'>
             Title <span className='text-red-600 ml-1'>*</span>
           </label>
           <input
@@ -85,12 +138,12 @@ const TodoEditPage = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder='Enter todo title'
-            className='border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition'
+            className='border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
           />
         </div>
 
         <div className='flex flex-col gap-1'>
-          <label className='font-semibold text-gray-700 flex items-center'>
+          <label className='font-semibold text-gray-700'>
             Description <span className='text-red-600 ml-1'>*</span>
           </label>
           <div
@@ -100,10 +153,7 @@ const TodoEditPage = () => {
         </div>
 
         <div className='flex flex-col gap-1'>
-          <label
-            htmlFor='date'
-            className='font-semibold text-gray-700 flex items-center'
-          >
+          <label htmlFor='date' className='font-semibold text-gray-700'>
             Date <span className='text-red-600 ml-1'>*</span>
           </label>
           <input
@@ -112,13 +162,13 @@ const TodoEditPage = () => {
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className='border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition'
+            className='border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500'
           />
         </div>
 
         <button
           type='submit'
-          className='self-start bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-semibold transition flex gap-3'
+          className='self-start bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-semibold transition flex items-center gap-3'
         >
           <PlusIcon /> Update Todo
         </button>

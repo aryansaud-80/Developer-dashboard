@@ -1,16 +1,21 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import CopyIcon from '../../assets/icons/CopyIcon';
 import TickIcon from '../../assets/icons/TickIcon';
 import getDifficultyColor from '../../utility/getDifficultyColor';
 import getLanguageColor from '../../utility/getLanguageColor';
 import { toast } from 'react-toastify';
 import CodeContainer from './CodeContainer';
-import { PenLineIcon, TagIcon } from 'lucide-react';
+import { DeleteIcon, PenLineIcon, TagIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
+import axios from 'axios';
+import { AppContext } from '../../context/AppContext';
 
 const SnippetCard = ({ snippet }) => {
   const [isCopied, setIsCopied] = useState(false);
+  const [popup, setPopup] = useState(false);
+  const { BACKEND_URL, accessToken } = useContext(AppContext);
+
   const navigate = useNavigate();
 
   const handleCopy = async () => {
@@ -27,7 +32,43 @@ const SnippetCard = ({ snippet }) => {
   const sanitizedDescription = DOMPurify.sanitize(snippet.description);
 
   const handleEdit = () => {
-    navigate(`snippet/edit/${snippet._id}`, { state: { snippet } });
+    navigate(`/snippet/edit/${snippet._id}`, { state: { snippet } });
+  };
+
+  const handleDelete = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+
+      const { data } = await axios.delete(
+        `${BACKEND_URL}/snippet/${snippet._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (data.success) {
+        toast.success('Snippet deleted successfully!');
+        handleBack();
+      }
+    } catch (error) {
+      toast.error(`Error: ${error.message}`);
+    } finally {
+      setPopup(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigate('/code-snippets');
+  };
+
+  const handlePopupConfirm = () => {
+    handleDelete();
+  };
+
+  const handlePopupCancel = () => {
+    setPopup(false);
   };
 
   return (
@@ -92,14 +133,59 @@ const SnippetCard = ({ snippet }) => {
         ))}
       </div>
 
-      <button
-        className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
-        onClick={handleEdit}
-        aria-label='Edit snippet'
-      >
-        <PenLineIcon className='h-5 w-5' />
-        EDIT
-      </button>
+      <div className='flex gap-2 items-center'>
+        <button
+          className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
+          onClick={handleEdit}
+          aria-label='Edit snippet'
+        >
+          <PenLineIcon className='h-5 w-5' />
+          EDIT
+        </button>
+
+        <button
+          className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
+          onClick={() => setPopup(true)}
+          aria-label='Edit snippet'
+        >
+          <DeleteIcon className='h-5 w-5' />
+          Delete
+        </button>
+      </div>
+
+      {popup && (
+        <div className='fixed inset-0 flex items-start justify-center z-50 pointer-events-none'>
+          <div
+            className='mt-24 bg-white border border-gray-200 shadow-2xl rounded-xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100 pointer-events-auto'
+            role='dialog'
+            aria-modal='true'
+            aria-labelledby='delete-popup-title'
+          >
+            <h1
+              id='delete-popup-title'
+              className='text-lg font-semibold text-slate-900 mb-4'
+            >
+              Are you sure you want to delete this To-Do?
+            </h1>
+            <div className='flex justify-end gap-4'>
+              <button
+                onClick={handlePopupCancel}
+                className='bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200'
+                aria-label='Cancel deletion'
+              >
+                No
+              </button>
+              <button
+                onClick={handlePopupConfirm}
+                className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200'
+                aria-label='Confirm deletion'
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

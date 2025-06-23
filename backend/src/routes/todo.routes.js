@@ -15,7 +15,7 @@ router.route('/').post(auth, createTodo).get(auth, getAllTodo);
 router
   .route('/:id')
   .get(auth, getTodo)
-  .patch(auth, updateTodo)
+  .put(auth, updateTodo)
   .delete(auth, deleteTodo);
 router.route('/:id/status').patch(auth, updateStatus);
 

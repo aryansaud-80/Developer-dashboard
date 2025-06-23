@@ -56,7 +56,7 @@ const AddTodoPage = () => {
   };
 
   return (
-    <section className='max-w-4xl mx-auto p-6 sm:p-10 ml-0 sm:ml-64'>
+    <section className='max-w-4xl mx-auto p-6 sm:p-10 ml-0 md:ml-64'>
       <h1 className='text-3xl font-bold mb-8 ml-10'>Add New To-Do</h1>
 
       <form

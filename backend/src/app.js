@@ -25,4 +25,8 @@ app.use('/api/todos', TodoRouter);
 app.use('/api/users', UserRouter);
 app.use('/api/snippet', TodoSnippetRouter);
 
+import globalErrorHandler from './middlewares/globalErrorHandler.middleware.js';
+
+app.use(globalErrorHandler);
+
 export default app;

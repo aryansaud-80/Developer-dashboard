@@ -31,7 +31,6 @@ const TodoPage = () => {
           throw new Error('Failed to load To-Do');
         }
       } catch (error) {
-        setError('Failed to load To-Do. Please try again later.');
         toast.error('Failed to load To-Do. Please try again later.');
       }
     };
@@ -91,7 +90,6 @@ const TodoPage = () => {
       toast.error(`Error: ${error.message}`);
     } finally {
       setPopup(false);
-      setToDelete(false);
     }
   };
 
@@ -114,7 +112,7 @@ const TodoPage = () => {
   const sanitizedDescription = DOMPurify.sanitize(todo.description);
 
   return (
-    <section className='sm:ml-64 px-6 py-10 min-h-screen bg-gray-50 relative'>
+    <section className='md:ml-64 px-6 py-10 min-h-screen bg-gray-50 relative'>
       <div className='max-w-7xl mx-auto flex flex-col lg:flex-row gap-6'>
         {isSidebarOpen && (
           <aside className='w-full lg:w-80 bg-white p-6 rounded-2xl shadow-lg border border-gray-200 transition-all duration-300 ease-in-out'>
@@ -220,7 +218,7 @@ const TodoPage = () => {
               <label className='inline-flex items-center cursor-pointer'>
                 <input
                   type='checkbox'
-                  checked={todo.completed}
+                  value={todo.completed ?? false}
                   onChange={handleStatusToggle}
                   className='sr-only peer'
                   aria-label={`Mark as ${

@@ -9,13 +9,14 @@ import TodoEditPage from './pages/TodoEditPage';
 import PomodoroPage from './pages/PomodoroPage';
 import SnippetPage from './pages/SnippetPage';
 import AddSnippetPage from './pages/AddSnippetPage';
+import SnippetEditPage from './pages/SnippetEditPage';
 
 const App = () => {
   return (
     <>
       <ToastContainer
         position='top-right'
-        autoClose={5000}
+        autoClose={1000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -35,6 +36,7 @@ const App = () => {
           <Route path='pomodoro-timer' element={<PomodoroPage />} />
           <Route path='code-snippets' element={<SnippetPage />} />
           <Route path='add-snippet' element={<AddSnippetPage />} />
+          <Route path='snippet/edit/:id' element={<SnippetEditPage />} />
         </Route>
       </Routes>
     </>

@@ -13,6 +13,6 @@ router.route('/').post(auth, createSnippet).get(auth, getAllSnippet);
 router
   .route('/:id')
   .get(auth, getSnippet)
-  .patch(auth, updateSnippet)
+  .put(auth, updateSnippet)
   .delete(auth, deleteSnippet);
 export default router;

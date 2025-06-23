@@ -6,34 +6,75 @@ import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import languages from '../assets/assets/languages';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ArrowBigLeft } from 'lucide-react';
 
-const AddSnippetPage = () => {
+const SnippetEditPage = () => {
+  const location = useLocation();
+  const snippet = location.state?.snippet;
+  const { id } = useParams();
+  const [loading, setLoading] = useState(false);
+
+  // console.log(id);
   const { BACKEND_URL, accessToken } = useContext(AppContext);
-  const [snippetData, setSnippetData] = useState({
-    title: '',
-    description: '',
-    code: '',
-    language: '',
-    tags: [],
-    difficulty: 'intermediate',
-  });
+  const [snippetData, setSnippetData] = useState(snippet || null);
+  const navigate = useNavigate();
 
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
   useEffect(() => {
     if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, {
+      const quill = new Quill(editorRef.current, {
         theme: 'snow',
         placeholder: 'Write your snippet description...',
       });
 
-      quillRef.current.on('text-change', () => {
+      quill.root.innerHTML = snippetData?.description || '';
+
+      quill.on('text-change', () => {
         setSnippetData((prev) => ({
           ...prev,
-          description: quillRef.current.root.innerHTML,
+          description: quill.root.innerHTML,
         }));
       });
+
+      quillRef.current = quill;
+    }
+  }, [snippetData]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        axios.defaults.withCredentials = true;
+
+        const { data } = await axios.get(`${BACKEND_URL}/snippet/${id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (data.success) {
+          setSnippetData(data.data);
+          if (quillRef.current) {
+            quillRef.current.root.innerHTML = data.data.description || '';
+          }
+        } else {
+          toast.error('Failed to fetch snippet');
+          navigate('/code-snippets');
+        }
+      } catch (error) {
+        toast.error('No snippet data');
+        navigate('/code-snippets');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!snippetData) {
+      fetchData();
+      console.log('Baby');
     }
   }, []);
 
@@ -42,34 +83,45 @@ const AddSnippetPage = () => {
       e.preventDefault();
       axios.defaults.withCredentials = true;
 
-      const { data } = await axios.post(`${BACKEND_URL}/snippet`, snippetData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const { data } = await axios.put(
+        `${BACKEND_URL}/snippet/${id}`,
+        snippetData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (data.success) {
-        toast.success('Saved snippet successfully');
-        setSnippetData({
-          title: '',
-          description: '',
-          code: '',
-          language: '',
-          tags: [],
-          difficulty: 'intermediate',
-        });
+        toast.success('Snippet updated successfully');
+        setSnippetData({});
         quillRef.current.setText('');
+        navigate('/code-snippets');
       }
     } catch (error) {
-      toast.error('Error to save snippet');
+      toast.error('Error to update snippet');
     }
   };
 
+  if (loading || !snippetData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className='px-4 sm:px-6 lg:px-8 py-10 max-w-4xl mx-auto ml-0 md:ml-64'>
-      <h1 className='text-3xl sm:text-4xl font-extrabold text-gray-800 mb-8 text-center sm:text-left'>
-        Add Your Snippet
-      </h1>
+      <div className='flex justify-between items-center'>
+        <h1 className='text-3xl sm:text-4xl font-extrabold text-gray-800 mb-8 text-center sm:text-left'>
+          Edit Your Snippet
+        </h1>
+        <button
+          className='flex bg-blue-300 px-3 py-2 rounded-md'
+          onClick={() => navigate('/code-snippets')}
+        >
+          <ArrowBigLeft />
+          Back
+        </button>
+      </div>
 
       <form className='flex flex-col gap-6' onSubmit={(e) => handleSubmit(e)}>
         <div className='flex flex-col'>
@@ -77,7 +129,7 @@ const AddSnippetPage = () => {
             htmlFor='title'
             className='text-sm font-semibold text-gray-700 mb-1'
           >
-            Title <span className='text-red-500'>*</span>
+            Title
           </label>
           <input
             id='title'
@@ -107,7 +159,7 @@ const AddSnippetPage = () => {
             htmlFor='language'
             className='text-sm font-semibold text-gray-700 mb-1'
           >
-            Language <span className='text-red-500'>*</span>
+            Language
           </label>
           <select
             id='language'
@@ -177,7 +229,7 @@ const AddSnippetPage = () => {
 
         <div className='flex flex-col'>
           <label className='text-sm font-semibold text-gray-700 mb-1'>
-            Code <span className='text-red-500'>*</span>
+            Code
           </label>
           <div className='border border-gray-300 rounded-md overflow-hidden shadow-sm'>
             <Editor
@@ -202,7 +254,7 @@ const AddSnippetPage = () => {
             type='submit'
             className='bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-md transition'
           >
-            Save Snippet
+            Update Snippet
           </button>
         </div>
       </form>
@@ -210,4 +262,4 @@ const AddSnippetPage = () => {
   );
 };
 
-export default AddSnippetPage;
+export default SnippetEditPage;
