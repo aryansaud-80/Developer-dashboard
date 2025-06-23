@@ -8,7 +8,7 @@ const WorkTimer = ({ play, onEnd }) => {
 
   useEffect(() => {
     if (!play) {
-      setSecondsLeft(workTime * 60);
+      setSecondsLeft(secondsLeft);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;

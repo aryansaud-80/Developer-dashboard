@@ -8,7 +8,7 @@ const ShortBreakTimer = ({ play, onEnd }) => {
 
   useEffect(() => {
     if (!play) {
-      setSecondsLeft(shortBreak * 60);
+      setSecondsLeft(secondsLeft);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;

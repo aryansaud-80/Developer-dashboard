@@ -57,7 +57,7 @@ const SnippetPage = () => {
   const totalPages = Math.ceil(filterSnippet.length / maxItem);
 
   return (
-    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 sm:ml-64'>
+    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 md:ml-64'>
       <div>
         <PageHeader
           Icon={CodeIcon}

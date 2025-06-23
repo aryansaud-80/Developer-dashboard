@@ -67,7 +67,7 @@ const Pomodoro = () => {
   };
 
   return (
-    <div className='max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center gap-10'>
+    <div className='max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center  gap-10 h-screen mt-20'>
       <div className='flex flex-col md:flex-row justify-center gap-4'>
         {['Work', 'Short Break', 'Long Break'].map((item) => (
           <button

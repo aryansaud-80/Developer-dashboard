@@ -10,7 +10,7 @@ const PomodoroSetting = () => {
   return (
     <div className='relative'>
       <div className='flex justify-between items-center min-w-lg p-3 z-0'>
-        <span className='gap-1 font-medium text-lg items-center hidden md:flex'>
+        <span className='gap-1 font-medium text-lg items-center hidden sm:flex'>
           <TimeIcon />
           Pomodoro
         </span>

@@ -42,7 +42,7 @@ const TodoListPage = () => {
   }, []);
 
   return (
-    <section className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 sm:ml-64'>
+    <section className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 md:ml-64'>
       <PageHeader
         Icon={AlignJustify}
         title={'Todo List'}
