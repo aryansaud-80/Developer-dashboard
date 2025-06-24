@@ -23,6 +23,9 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    githubUsername: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -72,7 +72,7 @@ const SnippetCard = ({ snippet }) => {
   };
 
   return (
-    <div className='border border-gray-500 p-4 rounded-lg w-full max-w-full sm:max-w-xl md:max-w-3xl mx-auto flex flex-col gap-6'>
+    <div className='border border-gray-300 p-4 rounded-lg w-full max-w-full sm:max-w-xl md:max-w-3xl mx-auto flex flex-col gap-6 shadow'>
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0'>
         <div>
           <h1 className='text-lg sm:text-xl font-bold break-words'>
@@ -104,14 +104,14 @@ const SnippetCard = ({ snippet }) => {
         <span
           className={`${getLanguageColor(
             snippet.language
-          )} px-3 py-1 rounded-full whitespace-nowrap`}
+          )} px-3 py-1 rounded whitespace-nowrap`}
         >
           {snippet.language}
         </span>
         <span
           className={`${getDifficultyColor(
             snippet.difficulty
-          )} px-3 py-1 rounded-full whitespace-nowrap`}
+          )} px-3 py-1 rounded whitespace-nowrap`}
         >
           {snippet.difficulty}
         </span>
@@ -125,7 +125,7 @@ const SnippetCard = ({ snippet }) => {
         {snippet.tags.map((tag, index) => (
           <div
             key={index}
-            className='flex gap-1 items-center text-xs sm:text-sm bg-gray-300 py-0.5 px-2 rounded-sm border border-gray-600 hover:bg-gray-500 transition-all duration-200 cursor-pointer whitespace-nowrap'
+            className='flex gap-1 items-center text-xs sm:text-sm bg-pink-200 rounded-sm border border-pink-300 shadow hover:bg-pink-300 transition-all duration-200 cursor-pointer whitespace-nowrap px-4 py-2'
           >
             <TagIcon className='h-4 w-4' />
             {tag}
@@ -135,7 +135,7 @@ const SnippetCard = ({ snippet }) => {
 
       <div className='flex gap-2 items-center'>
         <button
-          className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
+          className='flex items-center gap-2 bg-green-400 self-start px-4 py-2 rounded-sm hover:bg-green-600 transition-all duration-200 text-sm sm:text-base'
           onClick={handleEdit}
           aria-label='Edit snippet'
         >
@@ -144,7 +144,7 @@ const SnippetCard = ({ snippet }) => {
         </button>
 
         <button
-          className='flex items-center gap-2 bg-slate-400 self-start px-4 py-2 rounded-sm hover:bg-slate-600 transition-all duration-200 text-sm sm:text-base'
+          className='flex items-center gap-2 bg-red-500  self-start px-4 py-2 rounded-sm hover:bg-red-600 transition-all duration-200 text-sm sm:text-base'
           onClick={() => setPopup(true)}
           aria-label='Edit snippet'
         >
