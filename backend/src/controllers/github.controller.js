@@ -75,3 +75,36 @@ export const fetchAndSaveGithubActivity = asyncHandler(async (req, res) => {
       new ApiResponse(200, 'GitHub profile saved successfully', githubProfile)
     );
 });
+
+export const getGithubData = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError(401, 'You are unauthorized! Plz login first');
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(400, 'User not found');
+  }
+
+  if (!user.githubUsername || user.githubUsername.trim() === '') {
+    throw new ApiError(
+      400,
+      'GitHub username is not linked with the logged-in user'
+    );
+  }
+
+  const githubData = await GithubProfile.findOne({
+    username: user.githubUsername,
+  });
+
+  if (!githubData) {
+    throw new ApiError(404, 'Github data not found');
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Github data fetched successfully', githubData));
+});
