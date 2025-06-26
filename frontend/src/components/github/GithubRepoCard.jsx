@@ -7,7 +7,7 @@ import {
 
 const GithubRepoCard = () => {
   return (
-    <div className='w-full md:w-lg border border-gray-200 px-3 py-6 rounded-lg hover:shadow-lg shadow'>
+    <div className='w-full border border-gray-200 px-3 py-6 rounded-lg hover:shadow-lg shadow'>
       <div className='flex gap-3 flex-col'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold'>Spoon-Knife</h1>
@@ -30,7 +30,7 @@ const GithubRepoCard = () => {
           </div>
         </div>
 
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between max-sm:flex-col max-sm:items-start gap-2'>
           <div className='flex bg-pink-200 border border-pink-300 px-4 rounded'>HTML</div>
 
           <div className='text-gray-500 flex gap-2 items-center'>

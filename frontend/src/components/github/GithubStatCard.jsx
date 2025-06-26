@@ -2,7 +2,7 @@ import { UsersIcon } from 'lucide-react';
 
 const GithubStatCard = ({ title, statNumber }) => {
   return (
-    <div className='flex flex-col  justify-between w-full border px-3 py-6 rounded-md border-gray-200 gap-3 hover:shadow-md shadow md:w-60'>
+    <div className='flex flex-col  justify-between w-full border px-3 py-6 rounded-md border-gray-200 gap-3 hover:shadow-md shadow md:w-auto'>
       <div className='flex items-center justify-between gap-3'>
         <span className='text-sm font-medium'>{title || 'Followers'}</span>
         <UsersIcon className='w-4 h-4 text-gray-500'/>

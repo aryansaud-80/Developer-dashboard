@@ -3,6 +3,7 @@ import PageHeader from '../components/pageHeader/PageHeader';
 import ProfileCard from '../components/github/ProfileCard';
 import GithubStatCard from '../components/github/GithubStatCard';
 import GithubRepoCard from '../components/github/GithubRepoCard';
+import GithubRecentActivity from '../components/github/GithubRecentActivity';
 
 const GithubActivityPage = () => {
   const username = 'aryansaud-80';
@@ -23,8 +24,28 @@ const GithubActivityPage = () => {
         <GithubStatCard />
       </div>
 
-      <div>
-        <GithubRepoCard />
+      <div className='grid md:grid-cols-2 gap-3 grid-cols-1'>
+        <div className='flex bg-white shadow border border-gray-200 rounded-md '></div>
+
+        <GithubRecentActivity />
+      </div>
+
+      <div className='bg-white border border-gray-200 p-5 shadow rounded-md flex flex-col gap-10 items-start '>
+        <div className='flex flex-col gap-2 '>
+          <h1 className='text-2xl font-bold'>Repositories (9)</h1>
+          <span className='text-gray-500'>All public repositories</span>
+        </div>
+        <div className='grid lg:grid-cols-2 gap-6 grid-cols-1 '>
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+          <GithubRepoCard />
+        </div>
       </div>
     </section>
   );
