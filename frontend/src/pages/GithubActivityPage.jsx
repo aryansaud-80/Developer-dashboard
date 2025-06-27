@@ -4,6 +4,7 @@ import ProfileCard from '../components/github/ProfileCard';
 import GithubStatCard from '../components/github/GithubStatCard';
 import GithubRepoCard from '../components/github/GithubRepoCard';
 import GithubRecentActivity from '../components/github/GithubRecentActivity';
+import BarChart from '../components/chart/BarChart';
 
 const GithubActivityPage = () => {
   const username = 'aryansaud-80';
@@ -25,7 +26,9 @@ const GithubActivityPage = () => {
       </div>
 
       <div className='grid md:grid-cols-2 gap-3 grid-cols-1'>
-        <div className='flex bg-white shadow border border-gray-200 rounded-md '></div>
+        <div className='flex bg-white shadow border border-gray-200 rounded-md '>
+          <BarChart />
+        </div>
 
         <GithubRecentActivity />
       </div>
