@@ -7,7 +7,7 @@ import {
 
 const GithubRepoCard = () => {
   return (
-    <div className='w-full border border-gray-200 px-3 py-6 rounded-lg hover:shadow-lg shadow'>
+    <div className='w-full border border-gray-200 px-3 py-6 rounded-lg hover:shadow-lg shadow xl:w-md'>
       <div className='flex gap-3 flex-col'>
         <div className='flex items-center justify-between'>
           <h1 className='font-bold'>Spoon-Knife</h1>

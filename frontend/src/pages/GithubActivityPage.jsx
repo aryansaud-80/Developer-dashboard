@@ -35,7 +35,7 @@ const GithubActivityPage = () => {
           <h1 className='text-2xl font-bold'>Repositories (9)</h1>
           <span className='text-gray-500'>All public repositories</span>
         </div>
-        <div className='grid lg:grid-cols-2 gap-6 grid-cols-1 '>
+        <div className='grid lg:grid-cols-2 gap-4 grid-cols-1 w-full place-items-center'>
           <GithubRepoCard />
           <GithubRepoCard />
           <GithubRepoCard />
