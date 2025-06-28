@@ -1,14 +1,7 @@
-import { act } from 'react';
 import getActivityDescription from '../../utility/getActivityEvent';
+import formatDate from '../../utility/formatDate';
 
 const GithubRecentActivity = ({ recentActivities }) => {
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
   return (
     <div className='flex bg-white shadow border border-gray-200 rounded-md  p-6 flex-col'>
       <div className='flex flex-col'>
@@ -39,7 +32,9 @@ const GithubRecentActivity = ({ recentActivities }) => {
                   {activity.repo.name}
                 </span>
 
-                <span className='text-sm text-gray-500 pl-3'>{formatDate(activity.created_at)}</span>
+                <span className='text-sm text-gray-500 pl-3'>
+                  {formatDate(activity.created_at)}
+                </span>
               </div>
             );
           })}
