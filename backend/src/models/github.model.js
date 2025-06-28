@@ -22,6 +22,7 @@ const ActivitySchema = new Schema({
     url: { type: String, required: true },
   },
   created_at: { type: Date, required: true },
+  payload: { type: Schema.Types.Mixed },
 });
 
 const LanguageDataSchema = new Schema({

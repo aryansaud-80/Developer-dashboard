@@ -3,7 +3,7 @@ import { fetchAndSaveGithubActivity } from '../controllers/github.controller.js'
 import { User } from '../models/user.model.js';
 
 export const startCronJobs = () => {
-  cron.schedule('*/10 * * * *', async () => {
+  cron.schedule('*/1 * * * *', async () => {
     console.log('Running GitHub data sync cron job...');
     const users = await User.find({ githubUsername: { $ne: null } });
 

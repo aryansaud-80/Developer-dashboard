@@ -56,8 +56,9 @@ export const fetchAndSaveGithubActivity = asyncHandler(async (req, res) => {
     recentActivities: githubActivity.map((act) => ({
       id: act.id,
       type: act.type,
-      repo: { name: act.repoName, url: `https://github.com/${act.repoName}` },
-      created_at: act.createdAt,
+      repo: { name: act.repo.name, url: `https://github.com/${act.repo.name}` },
+      created_at: act.created_at,
+      payload: act.payload,
     })),
     languages: computeLanguageData(githubRepos),
     userId,

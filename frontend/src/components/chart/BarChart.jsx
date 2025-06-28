@@ -1,29 +1,30 @@
 import { ResponsiveBar } from '@nivo/bar';
-import getLanguageColorHex from '../../utility/getLanguageColorHex';
 
-const BarChart = () => {
-  const data = [
-    { _id: '1', language: 'JavaScript', total: 55 },
-    { _id: '2', language: 'Python', total: 30 },
-    { _id: '3', language: 'Ruby', total: 15 },
-    { _id: '4', language: 'C', total: 5 },
-    { _id: '5', language: 'C++', total: 10 },
-    { _id: '6', language: 'TypeScript', total: 2},
-    { _id: '7', language: 'Java', total: 80 },
-  ];
+const BarChart = ({ languageData }) => {
+  const shortLabels = {
+    JavaScript: 'JS',
+    TypeScript: 'TS',
+    Python: 'Py',
+    'C++': 'C++',
+    Ruby: 'Rb',
+    Java: 'Java',
+    C: 'C',
+  };
+
+  const formattedData = languageData?.map((d) => ({
+    ...d,
+    language: shortLabels[d.language] || d.language,
+  }));
 
   return (
-    <div className='w-full h-[400px]'>
+    <div className='w-full h-[60vw] max-h-[400px] min-h-[250px]'>
       <ResponsiveBar
-        data={data}
+        data={formattedData}
         indexBy='language'
-        keys={['total']}
-        margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+        keys={['count']}
+        margin={{ top: 30, right: 20, bottom: 40, left: 30 }}
         padding={0.3}
-        // 🎨 Custom color function based on language
-        colors={(bar) => {
-          return getLanguageColorHex(bar.data.language);
-        }}
+        colors={(bar) => bar.data.fill} 
         labelSkipWidth={12}
         labelSkipHeight={12}
         axisBottom={{
@@ -31,7 +32,7 @@ const BarChart = () => {
           legendOffset: 32,
         }}
         axisLeft={{
-          legend: 'Total',
+          legend: 'Count',
           legendOffset: -40,
         }}
         legends={[
