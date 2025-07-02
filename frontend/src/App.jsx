@@ -11,6 +11,7 @@ import SnippetPage from './pages/SnippetPage';
 import AddSnippetPage from './pages/AddSnippetPage';
 import SnippetEditPage from './pages/SnippetEditPage';
 import ErrorPage from './pages/ErrorPage';
+import TechNewsPage from './pages/TechNewsPage';
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
           <Route path='code-snippets' element={<SnippetPage />} />
           <Route path='add-snippet' element={<AddSnippetPage />} />
           <Route path='snippet/edit/:id' element={<SnippetEditPage />} />
+          <Route path='news' element={<TechNewsPage />} />
         </Route>
 
         <Route path='*' element={<ErrorPage />} />

@@ -15,10 +15,10 @@ const GithubRecentActivity = ({ recentActivities }) => {
         </span>
       ) : (
         <div className='flex flex-col gap-3 h-[400px] mt-10 overflow-auto px-3'>
-          {recentActivities.map((activity, index) => {
+          {recentActivities.map((activity) => {
             return (
               <div
-                className='bg-blue-50 p-4 rounded-md flex flex-col gap-1 '
+                className='bg-gray-50 p-4 rounded-md flex flex-col gap-1 shadow hover:shadow-md border border-gray-100'
                 key={activity.id}
               >
                 <div className='flex gap-2 items-center'>

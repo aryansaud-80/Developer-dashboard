@@ -34,8 +34,8 @@ const nav = [
   },
   {
     icon: NewsIcon,
-    name: 'Dev News',
-    to: 'dev-news'
+    name: 'Tech News',
+    to: 'news'
   },
   {
     icon: StackIcon,

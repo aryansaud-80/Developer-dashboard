@@ -61,7 +61,7 @@ const AddSnippetPage = () => {
         quillRef.current.setText('');
       }
     } catch (error) {
-      toast.error('Error to save snippet');
+      toast.error('Error to save snippet', error?.message);
     }
   };
 

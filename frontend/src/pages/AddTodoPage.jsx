@@ -51,7 +51,7 @@ const AddTodoPage = () => {
         quillRef.current.setText('');
       }
     } catch (error) {
-      toast.error('Failed to add To-Do. Please try again.');
+      toast.error('Failed to add To-Do. Please try again.', error.message);
     }
   };
 

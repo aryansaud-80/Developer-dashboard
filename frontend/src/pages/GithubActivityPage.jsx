@@ -46,7 +46,7 @@ const GithubActivityPage = () => {
     };
 
     fetchGithubActivity();
-  }, []);
+  }, [BACKEND_URL, accessToken]);
 
   if (loading) {
     return <div>Loading...</div>;
