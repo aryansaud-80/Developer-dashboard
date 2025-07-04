@@ -111,7 +111,7 @@ Here's what's planned next:
 - [x] Todo with backend and frontend
 - [x] Pomodoro with session and break tracking
 - [x] Code Snippet feature (basic CRUD)
-- [ ] GitHub productivity tracker
+- [x] GitHub productivity tracker
 - [ ] Daily tasks and goals
 - [ ] Fun section (e.g. Hangman game)
 - [ ] Dashboard overview (weekly stats)

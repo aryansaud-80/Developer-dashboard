@@ -23,7 +23,7 @@ const GithubRecentActivity = ({ recentActivities }) => {
               >
                 <div className='flex gap-2 items-center'>
                   <div className='h-2 w-2 bg-blue-200 rounded-full'></div>
-                  <h1 className='text-lg'>
+                  <h1 className='text-lg font-semibold'>
                     {getActivityDescription(activity)}
                   </h1>
                 </div>

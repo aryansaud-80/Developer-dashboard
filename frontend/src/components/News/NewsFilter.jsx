@@ -46,7 +46,7 @@ const NewsFilter = () => {
             ))}
           </ul>
         )}
-      </div>
+      </div>  
     </div>
   );
 };
