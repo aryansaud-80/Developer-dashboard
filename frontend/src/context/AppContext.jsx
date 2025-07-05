@@ -1,6 +1,4 @@
-import axios from 'axios';
 import { createContext, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 
 const AppContext = createContext();
 
@@ -34,9 +32,10 @@ const AppContextProvider = (props) => {
 
   const [todos, setTodos] = useState([]);
   const [todo, setTodo] = useState([]);
-  const [accessToken, setAccessToken] = useState(
-    import.meta.env.VITE_ACCESS_TOKEN
-  );
+  const [accessToken, _] = useState(import.meta.env.VITE_ACCESS_TOKEN);
+
+  const [news, setNews] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('AI');
 
   const value = {
     BACKEND_URL,
@@ -59,6 +58,10 @@ const AppContextProvider = (props) => {
     setFilterSnippet,
     snippets,
     setSnippets,
+    news,
+    setNews,
+    searchQuery,
+    setSearchQuery,
   };
 
   return (

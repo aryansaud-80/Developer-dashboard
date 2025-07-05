@@ -1,41 +1,70 @@
-import { SquareArrowOutUpRight, Timer, Eye } from 'lucide-react';
+import { Timer } from 'lucide-react';
+import { format } from 'date-fns';
 
-const NewsCard = () => {
+const NewsCard = ({ article }) => {
+  const {
+    title,
+    description,
+    image_url,
+    pubDate,
+    category,
+    source_id,
+    link,
+  } = article;
+
+
   return (
-    <article className='shadow-sm cursor-pointer hover:shadow-lg border border-gray-200 p-8 rounded-2xl transition-shadow duration-200'>
-      <div className='flex justify-between items-start'>
-        <a
-          href='#'
-          className='text-blue-600 hover:underline text-lg font-semibold max-w-[90%] line-clamp-2'
-        >
-          ICEBlock climbs to the top of the App Store charts after officials slam it
-        </a>
-        <a
-          href='#'
-          className='ml-2 hover:bg-blue-100 transition-colors duration-200 p-1 rounded-md text-gray-500 hover:text-blue-600'
-        >
-          <SquareArrowOutUpRight size={16} />
-        </a>
+    <div className='rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow overflow-hidden'>
+      <div className='relative h-44 w-full overflow-hidden'>
+        {image_url ? (
+          <img
+            src={image_url}
+            alt={title}
+            className='object-cover w-full h-full transition-transform hover:scale-105'
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg?height=180&width=320';
+            }}
+          />
+        ) : (
+          <div className='w-full h-full bg-gray-200  animate-pulse' />
+        )}
       </div>
 
-      <div className='flex flex-wrap gap-3 text-sm text-gray-600 mt-4 items-center'>
-        <span className='flex items-center gap-1'>
-          <Eye size={14} />
-          engadget.com
-        </span>
+      <div className='p-4 flex flex-col gap-2'>
+        <div className='flex justify-between items-center text-sm text-gray-500 '>
+          <span className='bg-gray-100 px-2 py-0.5 rounded-full text-xs font-medium'>
+            {category?.[0] || 'General'}
+          </span>
+          <span>{format(new Date(pubDate), 'LLL d, yyyy')}</span>
+        </div>
 
-        <span className='flex items-center gap-1'>
-          <Timer size={14} />
-          1 min read
-        </span>
+        <h3 className='font-semibold text-lg leading-tight line-clamp-2'>
+          <a
+            href={link}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='hover:underline'
+          >
+            {title}
+          </a>
+        </h3>
 
-        <span className='ml-auto text-xs text-gray-400'>16 min ago</span>
+        <p className='text-sm text-gray-600  line-clamp-2'>
+          {description || 'No description available.'}
+        </p>
+
+        <div className='flex justify-between items-center mt-2 text-sm text-gray-500 dark:text-gray-400'>
+          <span className='bg-gray-100 px-2 py-0.5 rounded text-xs'>
+            {source_id || 'Unknown'}
+          </span>
+
+          <div className='flex items-center gap-1'>
+            <Timer size={14} className='text-gray-400' />
+            <span>1 min read</span>
+          </div>
+        </div>
       </div>
-
-      <p className='mt-2 text-sm text-gray-500'>
-        by <span className='font-medium text-gray-700'>doener</span>
-      </p>
-    </article>
+    </div>
   );
 };
 

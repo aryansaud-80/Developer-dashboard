@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/roboto": "^5.2.6",
     "@monaco-editor/react": "^4.7.0",
+    "@mui/material": "^7.2.0",
     "@nivo/bar": "^0.99.0",
     "@nivo/colors": "^0.99.0",
     "@nivo/core": "^0.99.0",
     "@tailwindcss/vite": "^4.1.8",
     "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
     "quill": "^2.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

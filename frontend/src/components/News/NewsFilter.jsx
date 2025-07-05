@@ -6,6 +6,8 @@ const NewsFilter = () => {
   const [selected, setSelected] = useState(newsCategory[0]);
   const [isOpen, setIsOpen] = useState(false);
 
+  const 
+
   return (
     <div className='flex gap-4 flex-col sm:flex-row items-center w-full'>
       <form className='flex gap-2 items-center border border-gray-300 px-2 py-2 rounded-md w-full '>
