@@ -9,14 +9,11 @@ const AppContextProvider = (props) => {
   const navigate = useNavigate();
 
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-
-  // Initialize pomodoro count with daily reset
   const [pomodoroCount, setPomodoroCount] = useState(() => {
     const savedCount = localStorage.getItem("pomodoroCount");
     const savedDate = localStorage.getItem("pomodoroDate");
     const today = new Date().toDateString();
 
-    // Reset count if it's a new day
     if (savedDate !== today) {
       localStorage.setItem("pomodoroDate", today);
       localStorage.setItem("pomodoroCount", "0");
@@ -49,6 +46,7 @@ const AppContextProvider = (props) => {
 
   const [news, setNews] = useState([]);
   const [searchQuery, setSearchQuery] = useState("AI");
+  const [refreshTokenInterval, setRefreshTokenInterval] = useState(null);
 
   // persist token to localStorage
   useEffect(() => {
@@ -87,6 +85,35 @@ const AppContextProvider = (props) => {
       }
     };
     loadUser();
+  }, [accessToken]);
+
+  // Auto-refresh token before expiry
+  useEffect(() => {
+    if (accessToken) {
+      // Clear any existing interval
+      if (refreshTokenInterval) {
+        clearInterval(refreshTokenInterval);
+      }
+
+      // Refresh token every 12 minutes (before 15 minute expiry)
+      const interval = setInterval(async () => {
+        try {
+          console.log("[Token Refresh] Proactive refresh...");
+          const { data } = await axiosInstance.post("/users/auth/refresh");
+          if (data?.data?.accessToken) {
+            console.log("[Token Refresh] Success");
+            setAccessToken(data.data.accessToken);
+          }
+        } catch (error) {
+          console.error("[Token Refresh] Failed:", error.message);
+          // Token refresh failed, user will be logged out on next request
+        }
+      }, 12 * 60 * 1000); // 12 minutes in milliseconds
+
+      setRefreshTokenInterval(interval);
+
+      return () => clearInterval(interval);
+    }
   }, [accessToken]);
 
   // Persist pomodoro count with daily reset check
