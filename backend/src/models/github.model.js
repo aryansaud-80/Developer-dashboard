@@ -1,10 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
 const RepoSchema = new Schema({
   id: { type: Number, required: true },
   name: { type: String, required: true, trim: true },
   full_name: { type: String, required: true, trim: true },
-  description: { type: String, default: '' },
+  description: { type: String, default: "" },
   html_url: { type: String, required: true, trim: true },
   created_at: { type: Date, required: true },
   updated_at: { type: Date, required: true },
@@ -33,29 +33,30 @@ const LanguageDataSchema = new Schema({
 
 const GithubProfileSchema = new Schema(
   {
-    username: { type: String, required: true, unique: true, trim: true },
-    name: { type: String, default: '' },
-    avatar_url: { type: String, default: '' },
-    bio: { type: String, default: '' },
+    username: { type: String, trim: true },
+    name: { type: String, default: "" },
+    avatar_url: { type: String, default: "" },
+    bio: { type: String, default: "" },
     followers: { type: Number, default: 0 },
     following: { type: Number, default: 0 },
     public_repos: { type: Number, default: 0 },
     totalStars: { type: Number, default: 0 },
     created_at: { type: Date },
-    html_url: { type: String, default: '' },
+    html_url: { type: String, default: "" },
     repositories: { type: [RepoSchema], default: [] },
     recentActivities: { type: [ActivitySchema], default: [] },
     languages: { type: [LanguageDataSchema], default: [] },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
+      unique: true, // This is enough - removes the duplicate index
     },
   },
   { timestamps: true }
 );
 
 export const GithubProfile = mongoose.model(
-  'GithubProfile',
+  "GithubProfile",
   GithubProfileSchema
 );

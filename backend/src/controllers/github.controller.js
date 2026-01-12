@@ -1,79 +1,28 @@
-import asyncHandler from '../utils/asyncHandler.js';
-import { User } from '../models/user.model.js';
-import ApiResponse from '../utils/ApiResponse.js';
-import ApiError from '../utils/ApiError.js';
-import { getActivity } from '../service/getActivity.js';
-import { getGithubUser } from '../service/getGithubUser.js';
-import { getRepo } from '../service/getRepo.js';
-import { GithubProfile } from '../models/github.model.js';
-import { computeLanguageData } from '../service/computeLanguageData.js';
+import asyncHandler from "../utils/asyncHandler.js";
+import { User } from "../models/user.model.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import ApiError from "../utils/ApiError.js";
+import { GithubProfile } from "../models/github.model.js";
+import { syncGithubDataForUser } from "../service/syncGithubService.js";
 
 export const fetchAndSaveGithubActivity = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
-  if (!userId) throw new ApiError(401, 'Unauthorized');
+  if (!userId) throw new ApiError(401, "Unauthorized");
 
   const user = await User.findById(userId);
   if (!user?.githubUsername) {
-    throw new ApiError(400, 'GitHub username not set for this user');
+    throw new ApiError(400, "GitHub username not set for this user");
   }
-  const githubUsername = user.githubUsername;
 
-  const [githubUser, githubRepos, githubActivity] = await Promise.all([
-    getGithubUser(githubUsername),
-    getRepo(githubUsername),
-    getActivity(githubUsername),
-  ]);
-
-  const totalStars = githubRepos.reduce(
-    (sum, repo) => sum + (repo.stargazers_count || 0),
-    0
-  );
-
-  const profileData = {
-    username: githubUser.login,
-    name: githubUser.name || '',
-    avatar_url: githubUser.avatar_url || '',
-    bio: githubUser.bio || '',
-    followers: githubUser.followers || 0,
-    following: githubUser.following || 0,
-    public_repos: githubUser.public_repos || 0,
-    totalStars,
-    created_at: githubUser.created_at,
-    html_url: githubUser.html_url || '',
-    repositories: githubRepos.map((repo) => ({
-      id: repo.id,
-      name: repo.name,
-      full_name: repo.full_name,
-      description: repo.description || '',
-      html_url: repo.html_url,
-      created_at: repo.created_at,
-      updated_at: repo.updated_at,
-      stargazers_count: repo.stargazers_count,
-      forks_count: repo.forks_count,
-      language: repo.language,
-      topics: repo.topics || [],
-    })),
-    recentActivities: githubActivity.map((act) => ({
-      id: act.id,
-      type: act.type,
-      repo: { name: act.repo.name, url: `https://github.com/${act.repo.name}` },
-      created_at: act.created_at,
-      payload: act.payload,
-    })),
-    languages: computeLanguageData(githubRepos),
+  const githubProfile = await syncGithubDataForUser(
     userId,
-  };
-
-  const githubProfile = await GithubProfile.findOneAndUpdate(
-    { username: githubUser.login },
-    profileData,
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    user.githubUsername
   );
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, 'GitHub profile saved successfully', githubProfile)
+      new ApiResponse(200, "GitHub profile saved successfully", githubProfile)
     );
 });
 
@@ -81,31 +30,40 @@ export const getGithubData = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
 
   if (!userId) {
-    throw new ApiError(401, 'You are unauthorized! Plz login first');
+    throw new ApiError(401, "You are unauthorized! Please login first");
   }
 
   const user = await User.findById(userId);
 
   if (!user) {
-    throw new ApiError(400, 'User not found');
+    throw new ApiError(400, "User not found");
   }
 
-  if (!user.githubUsername || user.githubUsername.trim() === '') {
+  if (!user.githubUsername || user.githubUsername.trim() === "") {
     throw new ApiError(
       400,
-      'GitHub username is not linked with the logged-in user'
+      "GitHub username is not linked with the logged-in user"
     );
   }
 
-  const githubData = await GithubProfile.findOne({
-    username: user.githubUsername,
+  // Try to get existing GitHub data by userId (not username)
+  let githubData = await GithubProfile.findOne({
+    userId: userId,
   });
 
+  // If no data found, try to sync it first
   if (!githubData) {
-    throw new ApiError(404, 'Github data not found');
+    try {
+      githubData = await syncGithubDataForUser(userId, user.githubUsername);
+    } catch (error) {
+      throw new ApiError(
+        404,
+        "GitHub data not found. Please ensure your GitHub username is correct and your profile is public."
+      );
+    }
   }
 
   res
     .status(200)
-    .json(new ApiResponse(200, 'Github data fetched successfully', githubData));
+    .json(new ApiResponse(200, "Github data fetched successfully", githubData));
 });

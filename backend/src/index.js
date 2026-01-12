@@ -1,14 +1,14 @@
-import app from './app.js';
-import connectDB from './config/index.config.js';
-import { startCronJobs } from './service/cron.js';
+import app from "./app.js";
+import connectDB from "./config/index.config.js";
+import { startCronJobs } from "./service/cron.js";
 
 const PORT = process.env.PORT || 4001;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on PORT: ${PORT}`);
-      startCronJobs(); 
+      startCronJobs();
     });
   })
   .catch((err) => {

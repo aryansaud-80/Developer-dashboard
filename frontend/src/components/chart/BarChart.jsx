@@ -1,52 +1,61 @@
-import { ResponsiveBar } from '@nivo/bar';
+import { ResponsiveBar } from "@nivo/bar";
 
-const BarChart = ({ languageData }) => {
+const BarChart = ({ data, languageData }) => {
+  const chartData = data || languageData;
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center text-gray-500">
+        No language data available
+      </div>
+    );
+  }
+
   const shortLabels = {
-    JavaScript: 'JS',
-    TypeScript: 'TS',
-    Python: 'Py',
-    'C++': 'C++',
-    Ruby: 'Rb',
-    Java: 'Java',
-    C: 'C',
+    JavaScript: "JS",
+    TypeScript: "TS",
+    Python: "Py",
+    "C++": "C++",
+    Ruby: "Rb",
+    Java: "Java",
+    C: "C",
+    Go: "Go",
+    Rust: "Rust",
+    PHP: "PHP",
+    CSS: "CSS",
+    HTML: "HTML",
+    Shell: "Shell",
   };
 
-  const formattedData = languageData?.map((d) => ({
+  const formattedData = chartData?.map((d) => ({
     ...d,
     language: shortLabels[d.language] || d.language,
   }));
 
   return (
-    <div className='w-full h-[60vw] max-h-[400px] min-h-[250px]'>
+    <div className="w-full h-[400px]">
       <ResponsiveBar
         data={formattedData}
-        indexBy='language'
-        keys={['count']}
+        indexBy="language"
+        keys={["count"]}
         margin={{ top: 30, right: 20, bottom: 40, left: 30 }}
         padding={0.3}
-        colors={(bar) => bar.data.fill} 
+        colors={(bar) => bar.data.fill || "#6366f1"}
         labelSkipWidth={12}
         labelSkipHeight={12}
         axisBottom={{
-          legend: 'Language',
+          legend: "Language",
           legendOffset: 32,
         }}
         axisLeft={{
-          legend: 'Count',
+          legend: "Count",
           legendOffset: -40,
         }}
-        legends={[
-          {
-            dataFrom: 'keys',
-            anchor: 'bottom-right',
-            direction: 'column',
-            translateX: 120,
-            itemWidth: 100,
-            itemHeight: 16,
-            itemsSpacing: 3,
-            symbolSize: 20,
-          },
-        ]}
+        tooltip={({ indexValue, value }) => (
+          <div className="bg-white p-2 border border-gray-300 rounded shadow">
+            <strong>{indexValue}</strong>: {value}
+          </div>
+        )}
       />
     </div>
   );

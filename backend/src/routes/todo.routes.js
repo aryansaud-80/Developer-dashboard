@@ -1,22 +1,22 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   createTodo,
   deleteTodo,
-  getAllTodo,
+  getTodosByUserId,
   getTodo,
   updateStatus,
   updateTodo,
-} from '../controllers/todo.controller.js';
-import { auth } from '../middlewares/auth.middleware.js';
+} from "../controllers/todo.controller.js";
+import { auth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route('/').post(auth, createTodo).get(auth, getAllTodo);
+router.route("/").post(auth, createTodo).get(auth, getTodosByUserId);
 router
-  .route('/:id')
+  .route("/:id")
   .get(auth, getTodo)
   .put(auth, updateTodo)
   .delete(auth, deleteTodo);
-router.route('/:id/status').patch(auth, updateStatus);
+router.route("/:id/status").patch(auth, updateStatus);
 
 export default router;

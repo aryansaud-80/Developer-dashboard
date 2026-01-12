@@ -1,20 +1,19 @@
-import { useContext, useState } from 'react';
-import CopyIcon from '../../assets/icons/CopyIcon';
-import TickIcon from '../../assets/icons/TickIcon';
-import getDifficultyColor from '../../utility/getDifficultyColor';
-import getLanguageColor from '../../utility/getLanguageColor';
-import { toast } from 'react-toastify';
-import CodeContainer from './CodeContainer';
-import { DeleteIcon, PenLineIcon, TagIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import DOMPurify from 'dompurify';
-import axios from 'axios';
-import { AppContext } from '../../context/AppContext';
+import { useContext, useState } from "react";
+import CopyIcon from "../../assets/icons/CopyIcon";
+import TickIcon from "../../assets/icons/TickIcon";
+import getDifficultyColor from "../../utility/getDifficultyColor";
+import getLanguageColor from "../../utility/getLanguageColor";
+import { toast } from "react-toastify";
+import CodeContainer from "./CodeContainer";
+import { DeleteIcon, PenLineIcon, TagIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify";
+import axiosInstance from "../../utility/axios";
 
-const SnippetCard = ({ snippet }) => {
+const SnippetCard = ({ snippet, onDelete }) => {
   const [isCopied, setIsCopied] = useState(false);
   const [popup, setPopup] = useState(false);
-  const { BACKEND_URL, accessToken } = useContext(AppContext);
+  const [deleting, setDeleting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,10 +21,10 @@ const SnippetCard = ({ snippet }) => {
     try {
       await navigator.clipboard.writeText(snippet.code);
       setIsCopied(true);
-      toast.success('Code is copied');
+      toast.success("Code is copied");
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
-      console.log('Failed to copy code', error);
+      console.log("Failed to copy code", error);
     }
   };
 
@@ -37,30 +36,22 @@ const SnippetCard = ({ snippet }) => {
 
   const handleDelete = async () => {
     try {
-      axios.defaults.withCredentials = true;
-
-      const { data } = await axios.delete(
-        `${BACKEND_URL}/snippet/${snippet._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      setDeleting(true);
+      const { data } = await axiosInstance.delete(`/snippet/${snippet._id}`);
 
       if (data.success) {
-        toast.success('Snippet deleted successfully!');
-        handleBack();
+        toast.success("Snippet deleted successfully!");
+        if (onDelete) {
+          onDelete(snippet._id);
+        }
       }
     } catch (error) {
-      toast.error(`Error: ${error.message}`);
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to delete snippet");
     } finally {
       setPopup(false);
+      setDeleting(false);
     }
-  };
-
-  const handleBack = () => {
-    navigate('/code-snippets');
   };
 
   const handlePopupConfirm = () => {
@@ -72,35 +63,35 @@ const SnippetCard = ({ snippet }) => {
   };
 
   return (
-    <div className='border border-gray-300 p-4 rounded-lg w-full max-w-full sm:max-w-xl md:max-w-3xl mx-auto flex flex-col gap-6 shadow'>
-      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0'>
+    <div className="border border-gray-300 p-4 rounded-lg w-full max-w-full sm:max-w-xl md:max-w-3xl mx-auto flex flex-col gap-6 shadow">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className='text-lg sm:text-xl font-bold break-words'>
+          <h1 className="text-lg sm:text-xl font-bold break-words">
             {snippet.title}
           </h1>
           <div
-            className='desc'
+            className="desc"
             dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
           />
         </div>
 
         <button
-          className='bg-gray-100 border border-gray-200 p-2 rounded-lg flex items-center justify-center self-start sm:self-auto'
+          className="bg-gray-100 border border-gray-200 p-2 rounded-lg flex items-center justify-center self-start sm:self-auto"
           onClick={handleCopy}
-          aria-label='Copy code'
+          aria-label="Copy code"
         >
           {isCopied ? (
-            <div className='flex gap-2 items-center text-sm'>
-              <TickIcon className='h-4 w-4' />
+            <div className="flex gap-2 items-center text-sm">
+              <TickIcon className="h-4 w-4" />
               <span>Copied</span>
             </div>
           ) : (
-            <CopyIcon className='h-5 w-5' />
+            <CopyIcon className="h-5 w-5" />
           )}
         </button>
       </div>
 
-      <div className='flex flex-wrap gap-3 text-sm'>
+      <div className="flex flex-wrap gap-3 text-sm">
         <span
           className={`${getLanguageColor(
             snippet.language
@@ -117,70 +108,72 @@ const SnippetCard = ({ snippet }) => {
         </span>
       </div>
 
-      <div className='relative w-full overflow-x-auto'>
+      <div className="relative w-full overflow-x-auto">
         <CodeContainer language={snippet.language} code={snippet.code} />
       </div>
 
-      <div className='flex flex-wrap gap-2'>
+      <div className="flex flex-wrap gap-2">
         {snippet.tags.map((tag, index) => (
           <div
             key={index}
-            className='flex gap-1 items-center text-xs sm:text-sm bg-pink-200 rounded-sm border border-pink-300 shadow hover:bg-pink-300 transition-all duration-200 cursor-pointer whitespace-nowrap px-4 py-2'
+            className="flex gap-1 items-center text-xs sm:text-sm bg-pink-200 rounded-sm border border-pink-300 shadow hover:bg-pink-300 transition-all duration-200 cursor-pointer whitespace-nowrap px-4 py-2"
           >
-            <TagIcon className='h-4 w-4' />
+            <TagIcon className="h-4 w-4" />
             {tag}
           </div>
         ))}
       </div>
 
-      <div className='flex gap-2 items-center'>
+      <div className="flex gap-2 items-center">
         <button
-          className='flex items-center gap-2 bg-green-400 self-start px-4 py-2 rounded-sm hover:bg-green-600 transition-all duration-200 text-sm sm:text-base'
+          className="flex items-center gap-2 bg-green-400 self-start px-4 py-2 rounded-sm hover:bg-green-600 transition-all duration-200 text-sm sm:text-base"
           onClick={handleEdit}
-          aria-label='Edit snippet'
+          aria-label="Edit snippet"
         >
-          <PenLineIcon className='h-5 w-5' />
+          <PenLineIcon className="h-5 w-5" />
           EDIT
         </button>
 
         <button
-          className='flex items-center gap-2 bg-red-500  self-start px-4 py-2 rounded-sm hover:bg-red-600 transition-all duration-200 text-sm sm:text-base'
+          className="flex items-center gap-2 bg-red-500 self-start px-4 py-2 rounded-sm hover:bg-red-600 transition-all duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setPopup(true)}
-          aria-label='Edit snippet'
+          disabled={deleting}
+          aria-label="Delete snippet"
         >
-          <DeleteIcon className='h-5 w-5' />
-          Delete
+          <DeleteIcon className="h-5 w-5" />
+          {deleting ? "Deleting..." : "Delete"}
         </button>
       </div>
 
       {popup && (
-        <div className='fixed inset-0 flex items-start justify-center z-50 pointer-events-none'>
+        <div className="fixed inset-0 flex items-start justify-center z-50 pointer-events-none">
           <div
-            className='mt-24 bg-white border border-gray-200 shadow-2xl rounded-xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100 pointer-events-auto'
-            role='dialog'
-            aria-modal='true'
-            aria-labelledby='delete-popup-title'
+            className="mt-24 bg-white border border-gray-200 shadow-2xl rounded-xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100 pointer-events-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-popup-title"
           >
             <h1
-              id='delete-popup-title'
-              className='text-lg font-semibold text-slate-900 mb-4'
+              id="delete-popup-title"
+              className="text-lg font-semibold text-slate-900 mb-4"
             >
-              Are you sure you want to delete this To-Do?
+              Are you sure you want to delete this Snippet?
             </h1>
-            <div className='flex justify-end gap-4'>
+            <div className="flex justify-end gap-4">
               <button
                 onClick={handlePopupCancel}
-                className='bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200'
-                aria-label='Cancel deletion'
+                className="bg-gray-100 hover:bg-gray-200 text-slate-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200"
+                aria-label="Cancel deletion"
               >
                 No
               </button>
               <button
                 onClick={handlePopupConfirm}
-                className='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200'
-                aria-label='Confirm deletion'
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200 disabled:opacity-50"
+                disabled={deleting}
+                aria-label="Confirm deletion"
               >
-                Yes
+                {deleting ? "Deleting..." : "Yes"}
               </button>
             </div>
           </div>

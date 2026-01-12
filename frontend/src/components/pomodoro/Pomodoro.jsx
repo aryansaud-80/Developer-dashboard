@@ -1,105 +1,239 @@
-import { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
-import WorkTimer from './WorkTimer';
-import ShortBreakTimer from './ShortBreakTimer';
-import LongBreakTimer from './LongBreakTimer';
+import { useState, useContext, useEffect } from "react";
+import WorkTimer from "./WorkTimer";
+import ShortBreakTimer from "./ShortBreakTimer";
+import LongBreakTimer from "./LongBreakTimer";
+import { AppContext } from "../../context/AppContext";
+import { toast } from "react-toastify";
+import { Play, Pause, RotateCcw, BarChart3 } from "lucide-react";
+import axiosInstance from "../../utility/axios";
 
 const Pomodoro = () => {
-  const { setWorkTime, setLongBreak, setShortBreak } = useContext(AppContext);
-
-  const [activeSession, setActiveSession] = useState('Work');
-  const [play, setPlay] = useState(false);
-  const [sessionCount, setSessionCount] = useState(
-    Number(localStorage.getItem('sessionCount')) || 0
-  );
+  const [sessionType, setSessionType] = useState("work");
+  const [isPlaying, setIsPlaying] = useState(false);
   const [key, setKey] = useState(0);
+  const [weeklyStats, setWeeklyStats] = useState(null);
+  const [showStats, setShowStats] = useState(false);
 
-  const handleSessionChange = (session) => {
-    setActiveSession(session);
-    setPlay(false);
+  const { workTime, shortBreak, longBreak, pomodoroCount, setPomodoroCount } =
+    useContext(AppContext);
+
+  // Fetch weekly stats
+  useEffect(() => {
+    const fetchWeeklyStats = async () => {
+      try {
+        const { data } = await axiosInstance.get("/pomodoro/history?days=7");
+
+        if (data.success) {
+          setWeeklyStats(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch weekly stats:", error);
+      }
+    };
+
+    fetchWeeklyStats();
+  }, [pomodoroCount]);
+
+  const savePomodoroSession = async (type, duration, completed = true) => {
+    try {
+      await axiosInstance.post("/pomodoro/save", {
+        sessionType: type,
+        duration,
+        completed,
+      });
+    } catch (error) {
+      console.error("Failed to save pomodoro session:", error);
+      toast.error("Failed to save session");
+    }
+  };
+
+  const handleSessionComplete = async () => {
+    setIsPlaying(false);
+
+    if (sessionType === "work") {
+      await savePomodoroSession("work", workTime);
+      setPomodoroCount((prev) => prev + 1);
+      if (pomodoroCount + 1 >= 4) {
+        setSessionType("longBreak");
+        toast.info("Great work! Time for a long break!");
+        setPomodoroCount(0);
+      } else {
+        setSessionType("shortBreak");
+        toast.info("Nice! Take a short break!");
+      }
+    } else if (sessionType === "shortBreak") {
+      await savePomodoroSession("shortBreak", shortBreak);
+      setSessionType("work");
+      toast.info("Break over! Ready to work?");
+    } else {
+      await savePomodoroSession("longBreak", longBreak);
+      setSessionType("work");
+      toast.info("Break finished! Let's get back to work!");
+    }
+
     setKey((prev) => prev + 1);
   };
 
-  useEffect(() => {
-    localStorage.setItem('sessionCount', sessionCount);
-  }, [sessionCount]);
+  const handleStart = () => {
+    setIsPlaying(true);
+  };
 
-  const getStoredTime = (key, fallback) =>
-    Number(localStorage.getItem(key)) || fallback;
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
 
   const handleReset = () => {
-    if (activeSession === 'Work') {
-      setWorkTime(getStoredTime('workTime', 25));
-    } else if (activeSession === 'Short Break') {
-      setShortBreak(getStoredTime('shortBreak', 5));
-    } else if (activeSession === 'Long Break') {
-      setLongBreak(getStoredTime('longBreak', 15));
-    }
-    setPlay(false);
-  };
-
-  const handleTimerEnd = () => {
-    if (activeSession === 'Work') {
-      const nextCount = sessionCount + 1;
-      setSessionCount(nextCount);
-
-      if (nextCount < 4) {
-        setActiveSession('Short Break');
-      } else {
-        setActiveSession('Long Break');
-        setSessionCount(0);
-      }
-    } else {
-      setActiveSession('Work');
-    }
-
-    setPlay(false);
+    setIsPlaying(false);
     setKey((prev) => prev + 1);
   };
 
-  const renderTimer = () => {
-    if (activeSession === 'Work')
-      return <WorkTimer key={key} play={play} onEnd={handleTimerEnd} />;
-    if (activeSession === 'Short Break')
-      return <ShortBreakTimer key={key} play={play} onEnd={handleTimerEnd} />;
-    if (activeSession === 'Long Break')
-      return <LongBreakTimer key={key} play={play} onEnd={handleTimerEnd} />;
+  const handleSessionChange = (type) => {
+    setSessionType(type);
+    setKey((prev) => prev + 1);
   };
 
   return (
-    <div className='max-w-lg mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center  gap-10 h-screen mt-20'>
-      <div className='flex flex-col md:flex-row justify-center gap-4'>
-        {['Work', 'Short Break', 'Long Break'].map((item) => (
+    <section className="flex flex-col justify-center items-center min-h-screen gap-8 px-4 py-8">
+      {/* Stats Modal */}
+      {showStats && weeklyStats && (
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 ">
+          <div className="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">
+              Weekly Pomodoro Report
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">Total Sessions</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  {weeklyStats.totalSessions}
+                </p>
+              </div>
+
+              <div className="bg-green-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">Total Time</p>
+                <p className="text-3xl font-bold text-green-600">
+                  {Math.round(weeklyStats.totalMinutes)} min
+                </p>
+              </div>
+
+              <div className="bg-orange-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">Work Sessions</p>
+                <p className="text-3xl font-bold text-orange-600">
+                  {weeklyStats.workSessions}
+                </p>
+              </div>
+
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">Break Sessions</p>
+                <p className="text-3xl font-bold text-purple-600">
+                  {weeklyStats.breakSessions}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowStats(false)}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full max-w-2xl">
+        {/* Session Type Tabs */}
+        <div className="flex gap-4 mb-8 justify-center flex-wrap">
+          {[
+            { id: "work", label: "Work", color: "bg-red-500" },
+            {
+              id: "shortBreak",
+              label: "Short Break",
+              color: "bg-green-500",
+            },
+            { id: "longBreak", label: "Long Break", color: "bg-blue-500" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleSessionChange(tab.id)}
+              className={`px-6 py-2 rounded-lg font-semibold transition ${
+                sessionType === tab.id
+                  ? `${tab.color} text-white`
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Timer Display */}
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8 text-center">
+          {sessionType === "work" && (
+            <WorkTimer
+              key={key}
+              play={isPlaying}
+              onEnd={handleSessionComplete}
+            />
+          )}
+          {sessionType === "shortBreak" && (
+            <ShortBreakTimer
+              key={key}
+              play={isPlaying}
+              onEnd={handleSessionComplete}
+            />
+          )}
+          {sessionType === "longBreak" && (
+            <LongBreakTimer
+              key={key}
+              play={isPlaying}
+              onEnd={handleSessionComplete}
+            />
+          )}
+        </div>
+
+        {/* Control Buttons */}
+        <div className="flex gap-4 justify-center flex-wrap mb-8">
           <button
-            key={item}
-            onClick={() => handleSessionChange(item)}
-            className={`px-4 py-2 text-lg rounded-md font-medium transition-colors ${
-              activeSession === item
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-            }`}
+            onClick={handleStart}
+            disabled={isPlaying}
+            className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex gap-2 items-center"
           >
-            {item}
+            <Play size={20} /> Start
           </button>
-        ))}
+          <button
+            onClick={handlePause}
+            disabled={!isPlaying}
+            className="bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition flex gap-2 items-center"
+          >
+            <Pause size={20} /> Pause
+          </button>
+          <button
+            onClick={handleReset}
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition flex gap-2 items-center"
+          >
+            <RotateCcw size={20} /> Reset
+          </button>
+          <button
+            onClick={() => setShowStats(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition flex gap-2 items-center"
+          >
+            <BarChart3 size={20} /> Stats
+          </button>
+        </div>
+
+        {/* Pomodoro Counter */}
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">
+            Pomodoros Today:{" "}
+            <span className="font-bold text-2xl text-indigo-600">
+              {pomodoroCount}
+            </span>
+          </p>
+        </div>
       </div>
-
-      {renderTimer()}
-
-      <button
-        className='bg-indigo-600 hover:bg-indigo-700 text-white text-2xl sm:text-3xl font-semibold px-10 py-3 rounded-md shadow transition'
-        onClick={() => setPlay((prev) => !prev)}
-      >
-        {play ? 'Pause' : 'Start'}
-      </button>
-
-      <button
-        className='bg-gray-200 text-lg font-medium py-2 px-5 rounded-md'
-        onClick={handleReset}
-      >
-        Reset
-      </button>
-    </div>
+    </section>
   );
 };
 

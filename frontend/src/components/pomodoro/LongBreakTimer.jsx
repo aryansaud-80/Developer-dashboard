@@ -1,22 +1,33 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
-import { use } from 'react';
+import { useContext, useEffect, useRef, useState } from "react";
+import { AppContext } from "../../context/AppContext";
 
 const LongBreakTimer = ({ play, onEnd }) => {
   const { longBreak } = useContext(AppContext);
   const [secondsLeft, setSecondsLeft] = useState(longBreak * 60);
   const intervalRef = useRef(null);
+  const hasStartedRef = useRef(false);
 
+  // Track if timer has actually started
   useEffect(() => {
-    if (!play) {
-      setSecondsLeft(secondsLeft);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+    if (play) {
+      hasStartedRef.current = true;
     }
-  }, [longBreak, play]);
+  }, [play]);
 
+  // Reset timer when longBreak changes
+  useEffect(() => {
+    const newSeconds = longBreak * 60;
+    setSecondsLeft(newSeconds);
+
+    // If longBreak is set to 0 while timer is running, stop it
+    if (newSeconds === 0 && intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      hasStartedRef.current = false;
+    }
+  }, [longBreak]);
+
+  // Handle timer countdown
   useEffect(() => {
     if (play && intervalRef.current === null) {
       intervalRef.current = setInterval(() => {
@@ -37,26 +48,28 @@ const LongBreakTimer = ({ play, onEnd }) => {
     }
 
     return () => {
-      if (intervalRef.current !== null) {
+      if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
   }, [play]);
 
+  // Call onEnd only when timer naturally reaches 0 while playing
   useEffect(() => {
-    if (secondsLeft === 0) {
+    if (secondsLeft === 0 && onEnd && hasStartedRef.current && play) {
+      hasStartedRef.current = false;
       onEnd();
     }
-  }, [secondsLeft, onEnd]);
+  }, [secondsLeft, onEnd, play]);
 
   const minutes = Math.floor(secondsLeft / 60)
     .toString()
-    .padStart(2, '0');
-  const seconds = (secondsLeft % 60).toString().padStart(2, '0');
+    .padStart(2, "0");
+  const seconds = (secondsLeft % 60).toString().padStart(2, "0");
 
   return (
-    <div className='text-5xl sm:text-6xl md:text-7xl font-bold tracking-wide text-gray-900'>
+    <div className="text-7xl md:text-8xl font-bold tracking-wide text-gray-900">
       {`${minutes}:${seconds}`}
     </div>
   );
