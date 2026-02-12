@@ -8,7 +8,7 @@ import axiosInstance from "../utility/axios";
 import DOMPurify from "dompurify";
 
 const TodayTaskPage = () => {
-  const { todos, BACKEND_URL, accessToken } = useContext(AppContext);
+  const { BACKEND_URL, accessToken } = useContext(AppContext);
   const [todayTodos, setTodayTodos] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,11 +19,7 @@ const TodayTaskPage = () => {
         setLoading(true);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        const { data } = await axiosInstance.get(`/todos`);
-
+        const { data } = await axiosInstance.get("/todos");
         if (data.success) {
           const filtered = data.data.filter((todo) => {
             const dueDate = new Date(todo.dueDate);
@@ -33,16 +29,12 @@ const TodayTaskPage = () => {
           setTodayTodos(filtered);
         }
       } catch (error) {
-        console.error("Failed to fetch today tasks:", error);
         toast.error("Failed to fetch today tasks");
       } finally {
         setLoading(false);
       }
     };
-
-    if (accessToken) {
-      fetchTodayTodos();
-    }
+    if (accessToken) fetchTodayTodos();
   }, [accessToken, BACKEND_URL]);
 
   const completedCount = todayTodos.filter((t) => t.completed).length;
@@ -50,87 +42,100 @@ const TodayTaskPage = () => {
 
   const handleToggleComplete = async (todoId, currentStatus) => {
     try {
-      const { data } = await axiosInstance.patch(`/todos/${todoId}/status`, {
-        completed: !currentStatus,
-      });
-
+      const { data } = await axiosInstance.patch(
+        "/todos/" + todoId + "/status",
+        { completed: !currentStatus },
+      );
       if (data.success) {
         setTodayTodos((prev) =>
           prev.map((t) =>
-            t._id === todoId ? { ...t, completed: !currentStatus } : t
-          )
+            t._id === todoId ? { ...t, completed: !currentStatus } : t,
+          ),
         );
-        toast.success("Task updated!");
+        toast.success("Task updated");
       }
     } catch (error) {
-      console.error("Failed to update task:", error);
       toast.error("Failed to update task");
     }
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 md:ml-64">
+    <section className="page-container flex flex-col gap-8">
       <PageHeader
         Icon={Calendar}
-        title={"Today's Tasks"}
-        description={"Focus on what matters today"}
+        title="Today's Tasks"
+        description="Focus on what matters today"
       />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Total Tasks</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
-                {todayTodos.length}
-              </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          {
+            label: "Total Tasks",
+            value: todayTodos.length,
+            Icon: Calendar,
+            color: "var(--primary)",
+          },
+          {
+            label: "Completed",
+            value: completedCount,
+            Icon: CheckCircle2,
+            color: "var(--success)",
+          },
+          {
+            label: "Pending",
+            value: pendingCount,
+            Icon: Clock,
+            color: "var(--warning)",
+          },
+        ].map((stat, i) => (
+          <div key={i} className="card p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {stat.label}
+                </p>
+                <p
+                  className="text-2xl font-bold mt-1"
+                  style={{ color: stat.color }}
+                >
+                  {stat.value}
+                </p>
+              </div>
+              <stat.Icon size={28} style={{ color: stat.color }} />
             </div>
-            <Calendar className="text-blue-600" size={32} />
           </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Completed</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">
-                {completedCount}
-              </p>
-            </div>
-            <CheckCircle2 className="text-green-600" size={32} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Pending</p>
-              <p className="text-3xl font-bold text-orange-600 mt-2">
-                {pendingCount}
-              </p>
-            </div>
-            <Clock className="text-orange-600" size={32} />
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Tasks List */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+      <div className="card">
+        <div
+          className="p-5"
+          style={{ borderBottom: "1px solid var(--border-color)" }}
+        >
+          <h2
+            className="text-xl font-bold"
+            style={{ color: "var(--text-primary)" }}
+          >
             Your Tasks for Today
           </h2>
         </div>
-
-        <div className="divide-y">
+        <div>
           {loading ? (
-            <div className="p-6 text-center text-gray-400">Loading...</div>
+            <div
+              className="p-6 text-center"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Loading...
+            </div>
           ) : todayTodos.length > 0 ? (
             todayTodos.map((todo) => (
               <div
                 key={todo._id}
-                className="p-6 hover:bg-gray-50 transition flex items-start gap-4"
+                className="p-5 flex items-start gap-4 transition"
+                style={{ borderBottom: "1px solid var(--border-color)" }}
               >
                 <input
                   type="checkbox"
@@ -138,47 +143,55 @@ const TodayTaskPage = () => {
                   onChange={() =>
                     handleToggleComplete(todo._id, todo.completed)
                   }
-                  className="mt-1 w-5 h-5 rounded border-gray-300 text-indigo-600 cursor-pointer"
+                  className="mt-1 w-5 h-5 rounded cursor-pointer accent-pink-500"
                 />
                 <div className="flex-grow">
                   <h3
-                    className={`text-lg font-semibold ${
-                      todo.completed
-                        ? "line-through text-gray-400"
-                        : "text-gray-900"
-                    }`}
+                    className="font-semibold"
+                    style={{
+                      color: todo.completed
+                        ? "var(--text-muted)"
+                        : "var(--text-primary)",
+                      textDecoration: todo.completed ? "line-through" : "none",
+                    }}
                   >
                     {todo.title}
                   </h3>
                   <div
-                    className="text-gray-600 text-sm mt-1 prose prose-sm max-w-none"
+                    className="desc text-sm mt-1"
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(todo.description),
                     }}
                   />
-                  <div className="mt-3 flex gap-2">
-                    <span
-                      className={`text-xs px-2 py-1 rounded ${
-                        todo.completed
-                          ? "bg-green-100 text-green-700"
-                          : "bg-orange-100 text-orange-700"
-                      }`}
-                    >
-                      {todo.completed ? "Completed" : "Pending"}
-                    </span>
-                  </div>
+                  <span
+                    className="badge text-xs mt-2"
+                    style={{
+                      backgroundColor: todo.completed
+                        ? "var(--success-light)"
+                        : "var(--warning-light)",
+                      color: todo.completed
+                        ? "var(--success)"
+                        : "var(--warning)",
+                    }}
+                  >
+                    {todo.completed ? "Completed" : "Pending"}
+                  </span>
                 </div>
                 <button
-                  onClick={() => navigate(`/todo-list/${todo._id}`)}
-                  className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                  onClick={() => navigate("/todo-list/" + todo._id)}
+                  className="text-sm font-medium shrink-0"
+                  style={{ color: "var(--primary)" }}
                 >
                   View
                 </button>
               </div>
             ))
           ) : (
-            <div className="p-6 text-center text-gray-400">
-              No tasks for today. Great job! 🎉
+            <div
+              className="p-6 text-center"
+              style={{ color: "var(--text-muted)" }}
+            >
+              No tasks for today. Great job!
             </div>
           )}
         </div>

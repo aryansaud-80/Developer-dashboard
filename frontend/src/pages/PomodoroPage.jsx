@@ -1,10 +1,10 @@
-import AboutPomodoro from '../components/pomodoro/AboutPomodoro';
-import Pomodoro from '../components/pomodoro/Pomodoro';
-import PomodoroSetting from '../components/pomodoro/PomodoroSetting';
+import AboutPomodoro from "../components/pomodoro/AboutPomodoro";
+import Pomodoro from "../components/pomodoro/Pomodoro";
+import PomodoroSetting from "../components/pomodoro/PomodoroSetting";
 
 const PomodoroPage = () => {
   return (
-    <section className='md:ml-64 flex flex-col justify-center max-md:w-screen'>
+    <section className="page-container flex flex-col justify-center">
       <PomodoroSetting />
       <Pomodoro />
       <AboutPomodoro />

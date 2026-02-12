@@ -1,48 +1,35 @@
-import {
-  GitBranchIcon,
-  SquareArrowOutUpRight,
-  StarIcon,
-  Timer,
-} from "lucide-react";
-
+import { GitBranchIcon, SquareArrowOutUpRight, StarIcon, Timer } from "lucide-react";
 import formatDate from "../../utility/formatDate";
 
 const GithubRepoCard = ({ repo }) => {
   return (
-    <div className="w-full border border-gray-200 px-3 py-6 rounded-lg hover:shadow-lg shadow">
-      <div className="flex gap-3 flex-col">
-        <div className="flex items-center justify-between">
-          <h1 className="font-bold text-lg">{repo?.name}</h1>
-          <a href={repo?.html_url} target="_blank" rel="noopener noreferrer">
-            <SquareArrowOutUpRight className="w-4 h-4 text-gray-500 hover:text-gray-700" />
-          </a>
+    <div className="card p-5 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg" style={{ color: "var(--text-primary)" }}>
+          {repo?.name}
+        </h3>
+        <a href={repo?.html_url} target="_blank" rel="noopener noreferrer">
+          <SquareArrowOutUpRight className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
+        </a>
+      </div>
+      <p className="text-sm line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+        {repo?.description || "No description"}
+      </p>
+      <div className="flex gap-4" style={{ color: "var(--text-muted)" }}>
+        <div className="flex gap-1 items-center text-sm">
+          <StarIcon className="w-4 h-4" />
+          <span>{repo?.stargazers_count || 0}</span>
         </div>
-
-        <p className="text-sm text-gray-500 line-clamp-2">
-          {repo?.description || "No description"}
-        </p>
-
-        <div className="text-gray-500 flex gap-5">
-          <div className="flex gap-2 items-center">
-            <StarIcon className="w-4 h-4" />
-            <span>{repo?.stargazers_count || 0}</span>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <GitBranchIcon className="w-4 h-4" />
-            <span>{repo?.forks_count || 0}</span>
-          </div>
+        <div className="flex gap-1 items-center text-sm">
+          <GitBranchIcon className="w-4 h-4" />
+          <span>{repo?.forks_count || 0}</span>
         </div>
-
-        <div className="flex items-center justify-between max-sm:flex-col max-sm:items-start gap-2 pt-2">
-          <div className="flex bg-pink-200 border border-pink-300 px-3 py-1 rounded text-sm">
-            {repo?.language || "Unknown"}
-          </div>
-
-          <div className="text-gray-500 flex gap-2 items-center text-sm">
-            <Timer className="h-4 w-4" />
-            {formatDate(repo?.created_at)}
-          </div>
+      </div>
+      <div className="flex items-center justify-between flex-wrap gap-2 pt-2">
+        <span className="badge badge-pink">{repo?.language || "Unknown"}</span>
+        <div className="flex items-center gap-1 text-sm" style={{ color: "var(--text-muted)" }}>
+          <Timer className="h-4 w-4" />
+          {formatDate(repo?.created_at)}
         </div>
       </div>
     </div>

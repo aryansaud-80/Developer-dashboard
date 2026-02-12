@@ -6,19 +6,17 @@ import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import languages from "../assets/assets/languages";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Save } from "lucide-react";
 import axiosInstance from "../utility/axios";
+import { useTheme } from "../context/ThemeContext";
 
 const AddSnippetPage = () => {
-  const { BACKEND_URL, accessToken } = useContext(AppContext);
+  const { accessToken } = useContext(AppContext);
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [snippetData, setSnippetData] = useState({
-    title: "",
-    description: "",
-    code: "",
-    language: "javascript",
-    tags: [],
-    difficulty: "intermediate",
+    title: "", description: "", code: "", language: "javascript", tags: [], difficulty: "intermediate",
   });
 
   const quillRef = useRef(null);
@@ -26,228 +24,82 @@ const AddSnippetPage = () => {
 
   useEffect(() => {
     if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, {
-        theme: "snow",
-        placeholder: "Write your snippet description...",
-      });
-
+      quillRef.current = new Quill(editorRef.current, { theme: "snow", placeholder: "Write description..." });
       quillRef.current.on("text-change", () => {
-        setSnippetData((prev) => ({
-          ...prev,
-          description: quillRef.current.root.innerHTML,
-        }));
+        setSnippetData((prev) => ({ ...prev, description: quillRef.current.root.innerHTML }));
       });
     }
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!snippetData.title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
-
-    if (!snippetData.code.trim()) {
-      toast.error("Code is required");
-      return;
-    }
-
-    if (!snippetData.language) {
-      toast.error("Please select a language");
-      return;
-    }
-
+    if (!snippetData.title.trim()) { toast.error("Title is required"); return; }
+    if (!snippetData.code.trim()) { toast.error("Code is required"); return; }
     try {
       setLoading(true);
-
-      const { data } = await axiosInstance.post("/snippet", {
-        ...snippetData,
-        title: snippetData.title.trim(),
-        code: snippetData.code.trim(),
-      });
-
-      if (data.success) {
-        toast.success("Snippet saved successfully!");
-        setSnippetData({
-          title: "",
-          description: "",
-          code: "",
-          language: "javascript",
-          tags: [],
-          difficulty: "intermediate",
-        });
-        quillRef.current.setText("");
-
-        // Navigate to snippets list
-        setTimeout(() => {
-          navigate("/code-snippets");
-        }, 1000);
-      }
-    } catch (error) {
-      console.error("Failed to save snippet:", error);
-      toast.error(error.response?.data?.message || "Failed to save snippet");
-    } finally {
-      setLoading(false);
-    }
+      const { data } = await axiosInstance.post("/snippet", { ...snippetData, title: snippetData.title.trim(), code: snippetData.code.trim() });
+      if (data.success) { toast.success("Snippet saved"); setTimeout(() => navigate("/code-snippets"), 500); }
+    } catch (error) { toast.error(error.response?.data?.message || "Failed to save"); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-4xl mx-auto ml-0 md:ml-64">
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-8">
-        Add Your Snippet
-      </h1>
-
-      <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-        <div className="flex flex-col">
-          <label
-            htmlFor="title"
-            className="text-sm font-semibold text-gray-700 mb-1"
-          >
-            Title <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="title"
-            type="text"
-            required
-            value={snippetData.title}
-            onChange={(e) =>
-              setSnippetData((prev) => ({ ...prev, title: e.target.value }))
-            }
-            placeholder="e.g. Merge Sort Implementation"
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+    <div className="page-container">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Add Snippet</h1>
+          <button className="btn-secondary" onClick={() => navigate("/code-snippets")}><ArrowLeft size={16} /> Back</button>
         </div>
-
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-1">
-            Description
-          </label>
-          <div
-            ref={editorRef}
-            className="bg-white border border-gray-300 rounded-md p-3 min-h-[180px] shadow-sm"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="language"
-            className="text-sm font-semibold text-gray-700 mb-1"
-          >
-            Language <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="language"
-            required
-            value={snippetData.language}
-            onChange={(e) =>
-              setSnippetData((prev) => ({
-                ...prev,
-                language: e.target.value,
-              }))
-            }
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Select a language</option>
-            {languages.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="tags"
-            className="text-sm font-semibold text-gray-700 mb-1"
-          >
-            Tags <span className="text-gray-400">(comma-separated)</span>
-          </label>
-          <input
-            id="tags"
-            type="text"
-            placeholder="e.g. algorithm, array, data-structure"
-            value={snippetData.tags.join(", ")}
-            onChange={(e) =>
-              setSnippetData((prev) => ({
-                ...prev,
-                tags: e.target.value
-                  .split(",")
-                  .map((tag) => tag.trim())
-                  .filter(Boolean),
-              }))
-            }
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label
-            htmlFor="difficulty"
-            className="text-sm font-semibold text-gray-700 mb-1"
-          >
-            Difficulty
-          </label>
-          <select
-            id="difficulty"
-            value={snippetData.difficulty}
-            onChange={(e) =>
-              setSnippetData((prev) => ({
-                ...prev,
-                difficulty: e.target.value,
-              }))
-            }
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-sm font-semibold text-gray-700 mb-1">
-            Code <span className="text-red-500">*</span>
-          </label>
-          <div className="border border-gray-300 rounded-md overflow-hidden shadow-sm">
-            <Editor
-              height="300px"
-              language={snippetData.language || "javascript"}
-              defaultValue="// Enter your code here"
-              value={snippetData.code}
-              onChange={(value) =>
-                setSnippetData((prev) => ({ ...prev, code: value || "" }))
-              }
-              theme="vs-dark"
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                lineNumbers: "on",
-                wordWrap: "on",
-              }}
-            />
+        <form className="card p-6 sm:p-8 flex flex-col gap-6" onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">Title <span style={{ color: "var(--danger)" }}>*</span></label>
+            <input type="text" required value={snippetData.title}
+              onChange={(e) => setSnippetData((p) => ({ ...p, title: e.target.value }))} placeholder="e.g. Merge Sort" className="input-field" />
           </div>
-        </div>
-
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Saving..." : "Save Snippet"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate("/code-snippets")}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-2 rounded-md transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">Description</label>
+            <div ref={editorRef} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="form-label">Language <span style={{ color: "var(--danger)" }}>*</span></label>
+              <select required value={snippetData.language}
+                onChange={(e) => setSnippetData((p) => ({ ...p, language: e.target.value }))} className="select-field">
+                <option value="">Select</option>
+                {languages.map((lang) => <option key={lang} value={lang}>{lang.charAt(0).toUpperCase() + lang.slice(1)}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="form-label">Difficulty</label>
+              <select value={snippetData.difficulty}
+                onChange={(e) => setSnippetData((p) => ({ ...p, difficulty: e.target.value }))} className="select-field">
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">Tags <span style={{ color: "var(--text-muted)" }}>(comma-separated)</span></label>
+            <input type="text" placeholder="e.g. algorithm, array" value={snippetData.tags.join(", ")}
+              onChange={(e) => setSnippetData((p) => ({ ...p, tags: e.target.value.split(",").map((t) => t.trim()).filter(Boolean) }))} className="input-field" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">Code <span style={{ color: "var(--danger)" }}>*</span></label>
+            <div className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--border-color)" }}>
+              <Editor height="300px" language={snippetData.language || "javascript"} defaultValue="// Enter your code here"
+                value={snippetData.code} onChange={(v) => setSnippetData((p) => ({ ...p, code: v || "" }))}
+                theme={theme === "dark" ? "vs-dark" : "light"} options={{ minimap: { enabled: false }, fontSize: 14, lineNumbers: "on", wordWrap: "on" }} />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button type="submit" disabled={loading} className="btn-primary py-2.5">
+              <Save size={16} /> {loading ? "Saving..." : "Save Snippet"}
+            </button>
+            <button type="button" onClick={() => navigate("/code-snippets")} className="btn-secondary py-2.5">Cancel</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useContext } from "react";
 import { AppContext } from "./context/AppContext";
+import { useTheme } from "./context/ThemeContext";
 
 // Pages
 import TodoListPage from "./pages/TodoListPage";
@@ -28,8 +29,14 @@ const ProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--bg-secondary)" }}
+      >
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: "var(--primary)" }}
+        ></div>
       </div>
     );
   }
@@ -39,11 +46,18 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
   const { accessToken, isLoading } = useContext(AppContext);
+  const { theme } = useTheme();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--bg-secondary)" }}
+      >
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: "var(--primary)" }}
+        ></div>
       </div>
     );
   }
@@ -60,7 +74,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme={theme}
       />
       <Routes>
         {/* Auth Routes */}

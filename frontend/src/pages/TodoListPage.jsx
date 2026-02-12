@@ -4,7 +4,7 @@ import TodoCard from "../components/todo/TodoCard";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import PageHeader from "../components/pageHeader/PageHeader";
-import { AlignJustify } from "lucide-react";
+import { AlignJustify, Plus, RefreshCw } from "lucide-react";
 import Pagination from "../components/pagination/Pagination";
 import axiosInstance from "../utility/axios";
 
@@ -25,93 +25,52 @@ const TodoListPage = () => {
     try {
       setLoading(true);
       const { data } = await axiosInstance.get("/todos");
-
-      if (data.success) {
-        setTodos(data.data);
-      }
+      if (data.success) setTodos(data.data);
     } catch (error) {
-      console.error("Failed to fetch todos:", error);
       toast.error(error.response?.data?.message || "Failed to fetch todos");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch todos on mount
+  useEffect(() => { if (accessToken) fetchTodos(); }, [accessToken]);
   useEffect(() => {
-    if (accessToken) {
-      fetchTodos();
-    }
-  }, [accessToken]);
-
-  // Refresh when returning from add/edit pages
-  useEffect(() => {
-    if (location.state?.refresh) {
-      fetchTodos();
-      window.history.replaceState({}, document.title);
-    }
+    if (location.state?.refresh) { fetchTodos(); window.history.replaceState({}, document.title); }
   }, [location]);
-
-  // Refresh on trigger (e.g., after delete)
-  useEffect(() => {
-    if (refreshTrigger > 0) {
-      fetchTodos();
-    }
-  }, [refreshTrigger]);
+  useEffect(() => { if (refreshTrigger > 0) fetchTodos(); }, [refreshTrigger]);
 
   const handleTodoDelete = (todoId) => {
-    const updatedTodos = todos.filter((t) => t._id !== todoId);
-    setTodos(updatedTodos);
-    toast.success("Todo deleted successfully!");
+    setTodos(todos.filter((t) => t._id !== todoId));
+    toast.success("Todo deleted");
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-12 ml-0 md:ml-64">
-      <PageHeader
-        Icon={AlignJustify}
-        title={"Todo List"}
-        description={"Manage your development tasks and track your progress"}
-      />
+    <section className="page-container flex flex-col gap-8">
+      <PageHeader Icon={AlignJustify} title="Todo List" description="Manage your tasks and track progress" />
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-        <h3 className="text-2xl font-semibold text-gray-800">Your Tasks</h3>
-
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-          <button
-            onClick={() => navigate("/add-todo")}
-            className="w-full sm:w-auto bg-slate-600 text-white font-medium py-2 px-6 rounded-md hover:bg-slate-700 transition duration-200"
-          >
-            Add Todo
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <h3 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>Your Tasks</h3>
+        <div className="flex gap-3">
+          <button onClick={() => navigate("/add-todo")} className="btn-primary">
+            <Plus size={16} /> Add Todo
           </button>
-
-          <button
-            onClick={() => setRefreshTrigger((prev) => prev + 1)}
-            className="w-full sm:w-auto bg-indigo-600 text-white font-medium py-2 px-6 rounded-md hover:bg-indigo-700 transition duration-200"
-          >
-            Refresh
+          <button onClick={() => setRefreshTrigger((p) => p + 1)} className="btn-secondary">
+            <RefreshCw size={16} /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="grid place-items-center grid-cols-1 sm:grid-cols-2 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <p className="text-center text-gray-400 col-span-full">
-            Loading todos...
-          </p>
+          <p className="text-center col-span-full" style={{ color: "var(--text-muted)" }}>Loading todos...</p>
         ) : currentTodos.length > 0 ? (
-          currentTodos.map((todo) => (
-            <TodoCard key={todo._id} todo={todo} onDelete={handleTodoDelete} />
-          ))
+          currentTodos.map((todo) => <TodoCard key={todo._id} todo={todo} onDelete={handleTodoDelete} />)
         ) : (
-          <p className="text-gray-500 text-center col-span-full">
-            No todos found. Create your first task!
-          </p>
+          <p className="text-center col-span-full" style={{ color: "var(--text-muted)" }}>No todos found. Create your first task!</p>
         )}
       </div>
 
-      {totalPages > 1 && (
-        <Pagination page={page} setPage={setPage} totalPages={totalPages} />
-      )}
+      {totalPages > 1 && <Pagination page={page} setPage={setPage} totalPages={totalPages} />}
     </section>
   );
 };

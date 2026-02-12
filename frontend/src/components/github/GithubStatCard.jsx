@@ -1,14 +1,15 @@
 const GithubStatCard = ({ title, statNumber, Icon }) => {
   return (
-    <div className='flex flex-col  justify-between w-full border px-3 py-6 rounded-md border-gray-200 gap-3 hover:shadow-md shadow md:w-auto'>
-      <div className='flex items-center justify-between gap-3'>
-        <span className='text-sm font-medium'>{title || 'Followers'}</span>
-        <Icon className='w-4 h-4 text-gray-500' />
+    <div className="card p-5 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+          {title || "Stat"}
+        </span>
+        <Icon className="w-5 h-5" style={{ color: "var(--text-muted)" }} />
       </div>
-
-      <div className=''>
-        <p className='text-xl font-bold'>{statNumber || '80'}</p>
-      </div>
+      <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+        {statNumber || 0}
+      </p>
     </div>
   );
 };

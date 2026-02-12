@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
-import PlusIcon from "../assets/icons/PlusIcon";
-import axiosInstance from "../utility/axios";
-import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Plus, ArrowLeft } from "lucide-react";
+import axiosInstance from "../utility/axios";
 
 const AddTodoPage = () => {
   const { accessToken } = useContext(AppContext);
@@ -14,7 +13,6 @@ const AddTodoPage = () => {
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
@@ -29,126 +27,110 @@ const AddTodoPage = () => {
 
   const handleAddTodo = async (e) => {
     e.preventDefault();
-
     if (!title.trim()) {
       toast.error("Title is required");
       return;
     }
-
     if (!date) {
       toast.error("Due date is required");
       return;
     }
-
     const description = quillRef.current?.root.innerHTML;
-
     if (!description || description === "<p><br></p>") {
       toast.error("Description is required");
       return;
     }
-
     try {
       setLoading(true);
-
       const { data } = await axiosInstance.post("/todos", {
         title: title.trim(),
         description,
         dueDate: date,
       });
-
       if (data.success) {
-        toast.success("To-Do added successfully!");
+        toast.success("Todo added");
         setTitle("");
         setDate("");
         quillRef.current.setText("");
-
-        // Navigate to todo list after 1 second
-        setTimeout(() => {
-          navigate("/todo-list");
-        }, 1000);
+        setTimeout(() => navigate("/todo-list"), 500);
       }
     } catch (error) {
-      console.error("Failed to add todo:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to add To-Do. Please try again."
-      );
+      toast.error(error.response?.data?.message || "Failed to add todo");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="max-w-4xl mx-auto p-6 sm:p-10 ml-0 md:ml-64">
-      <h1 className="text-3xl font-bold mb-8">Add New To-Do</h1>
-
-      <form
-        onSubmit={handleAddTodo}
-        className="flex flex-col gap-8 bg-white p-8 rounded-md shadow-lg"
-      >
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="title"
-            className="font-semibold text-gray-700 flex items-center"
+    <section className="page-container">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "var(--text-primary)" }}
           >
-            Title <span className="text-red-600 ml-1">*</span>
-          </label>
-          <input
-            type="text"
-            id="title"
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter todo title"
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="font-semibold text-gray-700 flex items-center">
-            Description <span className="text-red-600 ml-1">*</span>
-          </label>
-          <div
-            ref={editorRef}
-            className="bg-white border border-gray-300 rounded-md p-3 min-h-[180px] shadow-sm"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="date"
-            className="font-semibold text-gray-700 flex items-center"
-          >
-            Due Date <span className="text-red-600 ml-1">*</span>
-          </label>
-          <input
-            type="date"
-            id="date"
-            required
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-          />
-        </div>
-
-        <div className="flex gap-4">
+            Add New Todo
+          </h1>
           <button
-            type="submit"
-            disabled={loading}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-semibold transition flex gap-3 items-center disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <PlusIcon />
-            {loading ? "Adding..." : "Add Todo"}
-          </button>
-          <button
-            type="button"
+            className="btn-secondary"
             onClick={() => navigate("/todo-list")}
-            className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md font-semibold transition"
           >
-            Cancel
+            <ArrowLeft size={16} /> Back
           </button>
         </div>
-      </form>
+        <form
+          onSubmit={handleAddTodo}
+          className="card p-6 sm:p-8 flex flex-col gap-6"
+        >
+          <div className="flex flex-col gap-1">
+            <label className="form-label">
+              Title <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter todo title"
+              className="input-field"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">
+              Description <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <div ref={editorRef} />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="form-label">
+              Due Date <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <input
+              type="date"
+              required
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="input-field"
+            />
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary py-2.5"
+            >
+              <Plus size={16} /> {loading ? "Adding..." : "Add Todo"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/todo-list")}
+              className="btn-secondary py-2.5"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 };

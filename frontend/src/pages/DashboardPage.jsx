@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import ThemeToggle from "../components/ThemeToggle";
 import {
   CheckCircle2,
   Clock,
@@ -27,21 +28,14 @@ const DashboardPage = () => {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !accessToken) {
-      navigate("/login");
-    }
+    if (!isLoading && !accessToken) navigate("/login");
   }, [accessToken, isLoading, navigate]);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        // Load todos
         const todosRes = await axiosInstance.get("/todos");
-        if (todosRes.data.success) {
-          setTodos(todosRes.data.data);
-        }
-
-        // Load pomodoro stats
+        if (todosRes.data.success) setTodos(todosRes.data.data);
         const pomodoroRes = await axiosInstance.get("/pomodoro/history");
         if (pomodoroRes.data.success) {
           setPomodoroHistory(pomodoroRes.data.data.sessions);
@@ -51,7 +45,6 @@ const DashboardPage = () => {
               .length,
             pendingTodos: todosRes.data.data.filter((t) => !t.completed).length,
             pomodoroSessions: pomodoroRes.data.data.totalSessions,
-            completedPomodoros: pomodoroRes.data.data.completedSessions,
             totalWorkTime: pomodoroRes.data.data.totalWorkTime,
           });
         }
@@ -61,11 +54,8 @@ const DashboardPage = () => {
         setStatsLoading(false);
       }
     };
-
-    if (accessToken && !isLoading) {
-      loadDashboardData();
-    }
-  }, [accessToken, isLoading, BACKEND_URL, setTodos, setPomodoroHistory]);
+    if (accessToken && !isLoading) loadDashboardData();
+  }, [accessToken, isLoading]);
 
   const handleLogout = async () => {
     try {
@@ -79,215 +69,227 @@ const DashboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "var(--bg-secondary)" }}
+      >
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-b-2"
+          style={{ borderColor: "var(--primary)" }}
+        />
       </div>
     );
   }
 
-  if (!accessToken) {
-    return null;
-  }
+  if (!accessToken) return null;
 
   const features = [
     {
       icon: CheckCircle2,
       title: "Todo Manager",
-      description: "Create and manage your daily tasks",
+      desc: "Manage your daily tasks",
       path: "/todo-list",
-      color: "bg-blue-100 text-blue-600",
       action: "View Tasks",
     },
     {
       icon: Clock,
       title: "Pomodoro Timer",
-      description: "Boost productivity with timed sessions",
+      desc: "Boost productivity",
       path: "/pomodoro-timer",
-      color: "bg-red-100 text-red-600",
       action: "Start Timer",
     },
     {
       icon: Code2,
       title: "Code Snippets",
-      description: "Save and organize your code",
+      desc: "Save and organize code",
       path: "/code-snippets",
-      color: "bg-green-100 text-green-600",
       action: "View Snippets",
     },
     {
       icon: Github,
       title: "GitHub Activity",
-      description: "Track your GitHub productivity",
+      desc: "Track your GitHub stats",
       path: "/github-activity",
-      color: "bg-purple-100 text-purple-600",
       action: "View Activity",
     },
     {
       icon: Newspaper,
       title: "Tech News",
-      description: "Stay updated with latest tech news",
+      desc: "Stay updated with tech",
       path: "/news",
-      color: "bg-yellow-100 text-yellow-600",
       action: "Read News",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "var(--bg-secondary)" }}
+    >
+      <div
+        style={{
+          backgroundColor: "var(--bg-card)",
+          borderBottom: "1px solid var(--border-color)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome, <span className="text-indigo-600">{user?.username}</span>
-              !
+            <h1
+              className="text-2xl sm:text-3xl font-bold"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Welcome,{" "}
+              <span style={{ color: "var(--primary)" }}>{user?.username}</span>
             </h1>
-            <p className="text-gray-600 mt-1">{user?.email}</p>
+            <p
+              className="text-sm mt-1"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {user?.email}
+            </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 items-center">
+            <ThemeToggle />
             <button
               onClick={() => navigate("/settings")}
-              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              className="btn-secondary"
               title="Settings"
             >
-              <Settings size={24} className="text-gray-600" />
+              <Settings size={18} />
             </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              <LogOut size={20} />
-              Logout
+            <button onClick={handleLogout} className="btn-danger">
+              <LogOut size={16} /> Logout
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Stats */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {!statsLoading && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">
-                    Total Todos
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            {[
+              {
+                label: "Total Todos",
+                value: stats.totalTodos,
+                color: "var(--primary)",
+                Icon: CheckCircle2,
+              },
+              {
+                label: "Completed",
+                value: stats.completedTodos,
+                color: "var(--success)",
+                Icon: CheckCircle2,
+              },
+              {
+                label: "Pending",
+                value: stats.pendingTodos,
+                color: "var(--warning)",
+                Icon: CheckCircle2,
+              },
+              {
+                label: "Pomodoros",
+                value: stats.pomodoroSessions,
+                color: "var(--danger)",
+                Icon: Clock,
+              },
+              {
+                label: "Work Time",
+                value: stats.totalWorkTime + "m",
+                color: "var(--info)",
+                Icon: Clock,
+              },
+            ].map((stat, i) => (
+              <div key={i} className="card p-4">
+                <p
+                  className="text-xs font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {stat.label}
+                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <p
+                    className="text-xl font-bold"
+                    style={{ color: stat.color }}
+                  >
+                    {stat.value}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {stats.totalTodos}
-                  </p>
+                  <stat.Icon size={20} style={{ color: stat.color }} />
                 </div>
-                <CheckCircle2 className="text-blue-600" size={32} />
               </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Completed</p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
-                    {stats.completedTodos}
-                  </p>
-                </div>
-                <CheckCircle2 className="text-green-600" size={32} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Pending</p>
-                  <p className="text-2xl font-bold text-orange-600 mt-2">
-                    {stats.pendingTodos}
-                  </p>
-                </div>
-                <CheckCircle2 className="text-orange-600" size={32} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">Pomodoros</p>
-                  <p className="text-2xl font-bold text-red-600 mt-2">
-                    {stats.pomodoroSessions}
-                  </p>
-                </div>
-                <Clock className="text-red-600" size={32} />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm font-medium">
-                    Work Time (min)
-                  </p>
-                  <p className="text-2xl font-bold text-purple-600 mt-2">
-                    {stats.totalWorkTime}
-                  </p>
-                </div>
-                <Clock className="text-purple-600" size={32} />
-              </div>
-            </div>
+            ))}
           </div>
         )}
 
-        {/* Features */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            What would you like to do?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <button
-                  key={index}
-                  onClick={() => navigate(feature.path)}
-                  className="group bg-white rounded-lg shadow hover:shadow-lg transition p-6 text-left transform hover:scale-105 duration-200"
+        <h2
+          className="text-xl font-bold mb-6"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Quick Access
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          {features.map((feature, i) => {
+            const Icon = feature.icon;
+            return (
+              <button
+                key={i}
+                onClick={() => navigate(feature.path)}
+                className="card p-5 text-left transition"
+              >
+                <div
+                  className="rounded-lg p-2.5 w-fit mb-3"
+                  style={{
+                    backgroundColor: "var(--primary-light)",
+                    color: "var(--primary)",
+                  }}
                 >
-                  <div className={`${feature.color} rounded-lg p-3 w-fit mb-4`}>
-                    <Icon size={28} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4">
-                    {feature.description}
-                  </p>
-                  <div className="text-indigo-600 text-sm font-medium group-hover:text-indigo-700">
-                    {feature.action} →
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+                  <Icon size={22} />
+                </div>
+                <h3
+                  className="font-semibold mb-1"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  className="text-xs mb-3"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {feature.desc}
+                </p>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: "var(--primary)" }}
+                >
+                  {feature.action} →
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Quick Tips */}
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg shadow p-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">💡 Pro Tips</h3>
-          <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <li className="flex gap-3">
-              <span className="text-indigo-600 font-bold">1.</span>
-              <span className="text-gray-700">
-                Use Pomodoro Technique for focused work sessions
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-indigo-600 font-bold">2.</span>
-              <span className="text-gray-700">
-                Save code snippets for quick future reference
-              </span>
-            </li>
-            <li className="flex gap-3">
-              <span className="text-indigo-600 font-bold">3.</span>
-              <span className="text-gray-700">
-                Link GitHub to track your productivity streaks
-              </span>
-            </li>
+        <div
+          className="card p-6"
+          style={{ backgroundColor: "var(--primary-light)" }}
+        >
+          <h3
+            className="font-bold mb-3"
+            style={{ color: "var(--text-primary)" }}
+          >
+            Pro Tips
+          </h3>
+          <ul className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              "Use Pomodoro for focused work sessions",
+              "Save code snippets for quick reference",
+              "Link GitHub to track productivity",
+            ].map((tip, i) => (
+              <li key={i} className="flex gap-2 text-sm">
+                <span className="font-bold" style={{ color: "var(--primary)" }}>
+                  {i + 1}.
+                </span>
+                <span style={{ color: "var(--text-secondary)" }}>{tip}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

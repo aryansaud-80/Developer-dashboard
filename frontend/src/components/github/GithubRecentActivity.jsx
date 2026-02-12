@@ -1,44 +1,49 @@
-import getActivityDescription from '../../utility/getActivityEvent';
-import formatDate from '../../utility/formatDate';
+import getActivityDescription from "../../utility/getActivityEvent";
+import formatDate from "../../utility/formatDate";
 
-const GithubRecentActivity = ({ recentActivities }) => {
+const GithubRecentActivity = ({ activities }) => {
   return (
-    <div className='flex bg-white shadow border border-gray-200 rounded-md  p-6 flex-col'>
-      <div className='flex flex-col'>
-        <h1 className='text-2xl font-bold'>Recent Activity</h1>
-        <span className='text-gray-500'>Latest public activity</span>
+    <div className="card p-6 flex flex-col gap-4">
+      <div>
+        <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+          Recent Activity
+        </h2>
+        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Latest public activity
+        </span>
       </div>
 
-      {!recentActivities ? (
-        <span className='text-gray-500 self-center mt-10'>
-          No recent activity available
-        </span>
-      ) : (
-        <div className='flex flex-col gap-3 h-[400px] mt-10 overflow-auto px-3'>
-          {recentActivities.map((activity) => {
-            return (
-              <div
-                className='bg-gray-50 p-4 rounded-md flex flex-col gap-1 shadow hover:shadow-md border border-gray-100'
-                key={activity.id}
-              >
-                <div className='flex gap-2 items-center'>
-                  <div className='h-2 w-2 bg-blue-200 rounded-full'></div>
-                  <h1 className='text-lg font-semibold'>
-                    {getActivityDescription(activity)}
-                  </h1>
-                </div>
-
-                <span className='text-sm text-gray-500 pl-3'>
-                  {activity.repo.name}
-                </span>
-
-                <span className='text-sm text-gray-500 pl-3'>
-                  {formatDate(activity.created_at)}
-                </span>
+      {activities && activities.length > 0 ? (
+        <div className="flex flex-col gap-3 max-h-96 overflow-auto">
+          {activities.map((activity) => (
+            <div
+              key={activity.id}
+              className="p-4 rounded-lg flex flex-col gap-1"
+              style={{
+                backgroundColor: "var(--bg-hover)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div className="flex gap-2 items-center">
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: "var(--primary)" }}
+                />
+                <h3 className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  {getActivityDescription(activity)}
+                </h3>
               </div>
-            );
-          })}
+              <span className="text-sm pl-4" style={{ color: "var(--text-secondary)" }}>
+                {activity.repo.name}
+              </span>
+              <span className="text-sm pl-4" style={{ color: "var(--text-muted)" }}>
+                {formatDate(activity.created_at)}
+              </span>
+            </div>
+          ))}
         </div>
+      ) : (
+        <span style={{ color: "var(--text-muted)" }}>No recent activity available</span>
       )}
     </div>
   );
